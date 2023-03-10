@@ -1,5 +1,5 @@
 import netifaces
-
+import menuBase
 
 
 # Analisando as interfaces
@@ -9,7 +9,7 @@ interfaces = netifaces.interfaces()
 gateway = netifaces.gateways()['default'][netifaces.AF_INET][0]
 
 # Create a menu with the interfaces
-def menu_interfaces():
+def list_interfaces():
     current_row = 0
     menu_items = []
     for interface in interfaces:
@@ -21,3 +21,25 @@ def menu_interfaces():
                 menu_items.append(f"{interface} ({ip}/{netmask})")
     menu_items.append("Exit")
     return menu_items
+
+
+
+
+def menu_interfaces():
+    menu_items=list_interfaces()
+    option = menuBase.menu_principal("Selecione a Rede que deseja configurar o Firewall", menu_items)
+
+#if option != len(menu_items) - 1:
+#    screen.clear()
+#    screen.addstr(0, 0, f"Interface selecionada: {menu_items[option]}")
+#    screen.addstr(1, 0, f"Endereço de rede: {menu_items[option].split()[1]}")
+#    screen.addstr(2, 0, f"Gateway padrão: {gateway}")
+#    screen.refresh()
+#    screen.getch()
+
+# Clean up the curses library
+#screen.keypad(False)
+#curses.echo()
+#curses.endwin()
+
+   
