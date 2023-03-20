@@ -1,19 +1,19 @@
 import curses
 # Configurando a biblioteca para que se possa navegar pelo menu
-screen = curses.initscr()
-curses.noecho()
-curses.cbreak()
-curses.start_color()
-screen.keypad(True)
-
-# Definuindo as cores
-curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK) # Cor verde
-curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK) # cor Amarela
 
 
 
 # Define the menu function
-def menu_principal(title, menu_items):
+def menu_factory(title, menu_items):
+    screen = curses.initscr()
+    curses.noecho()
+    curses.cbreak()
+    curses.start_color()
+    screen.keypad(True)
+
+    # Definuindo as cores
+    curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK) # Cor verde
+    curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK) # cor Amarela
     screen.clear()
     screen.border(0)
     screen.addstr(2, 2, title)
@@ -44,10 +44,12 @@ def menu_principal(title, menu_items):
             option = current_row
             break
 
+
     # Clean up the curses library
     curses.nocbreak()
     screen.keypad(False)
     curses.echo()
     curses.endwin()
-
     return option
+
+
