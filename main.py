@@ -4,26 +4,42 @@ import forward
 import nat
 import checkLogs
 import intefaceMenu
-
+import reloadRules
+import registreService
 
 def main_menu():
-    main_title='Qual Tabela você deseja configurar ?'
-    opcoes_Main=['Input',
+    main_title='O que deseja fazer?'
+    opcoes_Main=['Recarregar regras persistidas',
+                 'Cadastrar Novo Serviço',
+            'Input',
             'Forward - (Para Gateways)',
             'NAT- (Mascaramentos)',
             'Verificar os logs de bloqueios e tentativas de acesso',
             'sair']
     return   menuBase.menu_factory(main_title,opcoes_Main)
 
+def quit():
+    return
+
+
+
 
 def main():
-    selected= main_menu()
-    # lista de funções do menu principal
-    menus = {0:input.conf_Input,
-             1:forward.conf_Forward,
-             2:nat.conf_nat,
-             3:checkLogs.logs}
-    menus.get(selected)()
+
+    while True:
+        selected= main_menu()
+        if selected==6:
+            break
+        # lista de funções do menu principal
+        menus = { 0: reloadRules.updateChains,
+                1: registreService.registreService,
+                2:input.conf_Input,
+                3:forward.conf_Forward,
+                4:nat.conf_nat,
+                5:checkLogs.logs,
+                6:quit}
+        
+        menus.get(selected)()
 
 main()
 #menu_items=intefaceMenu.menu_interfaces()

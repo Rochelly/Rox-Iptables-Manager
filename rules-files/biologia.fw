@@ -1,0 +1,53 @@
+#!/bin/bash     
+
+NAME=BIOLOGIA
+IP=10.3.38.3
+PORTS_TCP=
+
+
+
+
+
+
+
+PORTS_UDP=
+
+
+]
+
+
+
+
+
+
+#TERMINAL_IP=$(dig +short pontoadcon.ddns.net)
+#TERMINAL_IP=189.26.203.149
+#TERMINAL_PORTS=3389
+
+
+
+
+
+
+
+#                                                    Observaçõe
+
+#              PORTAS TCP
+#8080,8443  LIT da Escola Saint Paul
+
+
+#              PORTAS UDP
+
+
+#RULES TCP  PROTOCOL
+#iptables -t filter -A $NAME -s $NET -p tcp -m multiport --dports $PORTS_TCP -m conntrack --ctstate NEW -j ACCEPT
+
+
+iptables -t filter -A $NAME -s 177.11.48.98 -m conntrack --ctstate NEW -j ACCEPT
+
+
+
+#RULES UDP  PROTOCOL
+#iptables -t filter -A $NAME -s $NET -p udp -m multiport --dports $PORTS_UDP -m conntrack --ctstate NEW -j ACCEPT
+
+
