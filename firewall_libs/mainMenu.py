@@ -1,39 +1,43 @@
+
 import curses
-# Configurando a biblioteca para que se possa navegar pelo menu
+import firewall_libs.intefacesPrints as interfacePrints
 
 
 
-# Define the menu function
-def menu_factory(title, menu_items):
+def startScreen():
     screen = curses.initscr()
+    screen.keypad(True)
+    interfacePrints.drawHeader(screen)
     curses.noecho()
     curses.cbreak()
     curses.start_color()
-    screen.keypad(True)
-
-    # Definuindo as cores
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK) # Cor verde
     curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK) # cor Amarela
-    screen.clear()
-    screen.border(0)
-    screen.addstr(2, 2, title)
-    screen.addstr(4, 2, "Use as teclas de seta para cima e para baixo para selecionar uma opção:")
-    screen.addstr(5, 2, "Pressione Enter para selecionar uma opção:")
-    screen.refresh()
+    curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
+    curses.init_pair(4, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+    curses.init_pair(5, curses.COLOR_CYAN, curses.COLOR_BLACK)
+    return screen
 
-    # Initialize the menu
+def stopScreen(screen):
+    screen.keypad(False)
+    curses.nocbreak()
+    curses.echo()
+    curses.endwin()
+
+
+def mainMenu(menu_items,functionsList):
+
+    screen=startScreen()
     current_row = 0
     option = 0
-    while True:
-        # Display the menu items
+
+    while True:    
         for index, item in enumerate(menu_items):
             if index == current_row:
                 screen.addstr(7 + index, 4, item, curses.color_pair(1))
             else:
                 screen.addstr(7 + index, 4, item, curses.color_pair(2))
         screen.refresh()
-
-        # Get user input
         key = screen.getch()
 
         if key == curses.KEY_UP and current_row > 0:
@@ -42,15 +46,18 @@ def menu_factory(title, menu_items):
             current_row += 1
         elif key == curses.KEY_ENTER or key in [10, 13]:
             option = current_row
-            break
+            if menu_items[option]=="sair":
+                stopScreen(screen)   
+                print("Até logo!") 
+                break
+            else:
+                functionsList[option](screen)
+    return
+                
+  
+    
 
-
-    # Clean up the curses library
-    curses.nocbreak()
-    screen.keypad(False)
-    curses.echo()
-    curses.endwin()
-    return option
+    
 
 
 

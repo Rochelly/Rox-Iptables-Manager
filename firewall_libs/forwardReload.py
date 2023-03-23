@@ -1,9 +1,11 @@
 import os
 import datetime
 import subprocess
-
+import re
+import firewall_libs.intefacesPrints as interfacePrint
+ 
 dir_path = './rules-files'
-filepath="/home/rochelly/roxFirewallman/rules-files/agronomia.conf"
+
 
 
 def  getServiceName(fileName):
@@ -56,7 +58,6 @@ def get_changed_files(dir_path):
     # Retorna a lista de arquivos modificados
     return changed_files
 
-
 def checkExistChain(chain):
     command="sudo iptables -nL "+chain
     try:
@@ -65,38 +66,41 @@ def checkExistChain(chain):
         return True
     except subprocess.CalledProcessError:
         return False
-    
 
 def runCommand(command):
+    if not command:
+        return False
+    
     try:
         args = command.split()
         subprocess.run(args, check=True)
-     
-    except subprocess.CalledProcessError:
         return False
-    
+     
+    except subprocess.CalledProcessError as error:
+        return str(error)
 
 def createChain(chain,ip):
     command="sudo iptables -N "+chain
     runCommand(command)
     referenceChain="sudo iptables -t filter -I FORWARD -d "+ip+" -j "+chain
     runCommand(referenceChain)
-   
   
 def delete_rules_with_target(chain, target):
     # Executa o comando do iptables e captura a saída
     output = subprocess.Popen(['sudo', 'iptables', '-nL', chain, '--line-numbers'], stdout=subprocess.PIPE)
-
+    target=" "+target+" "
     # Analisa a saída para encontrar as linhas que contêm o alvo especificado e exclui as regras correspondentes
     for line in output.stdout:
+        
         line = line.decode().strip()
+
         if target in line:
             rule_num = line.split()[0]
+           # print(line)
             subprocess.run(['sudo', 'iptables', '-D', chain, rule_num])
 
     # Aguarda o término do processo para garantir que todas as regras foram excluídas
     output.wait()
-
 
 def clearChain(chain):
     delete_rules_with_target("FORWARD",chain)
@@ -105,32 +109,67 @@ def clearChain(chain):
     runCommand(commandF)
     runCommand(commandX)
 
+def setServiceRules(nome_arquivo,chain,screen):
 
-def updateChains():
-    #altere para o diretório base
+    listErros=[]
+
+    with open(nome_arquivo, 'r') as arquivo:
+        for num_linha, linha in enumerate(arquivo.readlines()):
+            rule=""
+            if linha.startswith('#'):
+                continue
+            origem = re.search(r'ORIGEM=(.*?)\s+', linha)
+            ports = re.search(r'PORTS=(.*?)\s+', linha)
+            protocol = re.search(r'PROTOCOL=(.*?)\s+', linha)
+            #descricao = re.search(r'DESCRICAO="(.*?)"', linha)
+            regra = re.search(r'REGRA=(.*?)\s+', linha)
+            
+            if origem and ports and protocol and regra:
+                #print(f'Linha {num_linha + 1}')
+ 
+                rule=(f' sudo iptables -t filter -A {chain} -s  {origem.group(1)} -p {protocol.group(1)} -m multiport --dport {ports.group(1)} -m conntrack --ctstate NEW -j {regra.group(1)} ')
+              #  print('\n')
+               # print(rule)
+                if runCommand(rule):
+                    erro=f'Erro na linha Linha {num_linha + 1} ({chain}) - Arquivo: {nome_arquivo}'
+                    listErros.append(erro)
+                    screen.clear()
+    return listErros
+
+
+def reloadRules(screen):
+
+    listErros=[]
+    sucessMsg=[]
+    sucessReload=[]
+    printline=17
     baseDir="rules-files/"
     modifiedFiles=get_changed_files(dir_path)
     if len(modifiedFiles) == 0:
-        print("Não Existe Modificações nas regras")
-        
-    #para cada arquivo que sofreu modificação
-    for file in modifiedFiles:
-        file=baseDir+file
-        nome=getServiceName(file)
-        print("")
-        print("As regras do serviço "+nome+" serão atualizadas...")
-        ip=getServiceIP(file)
-        clearChain(nome)
-        createChain(nome,ip)
-        command="/bin/bash "+file
-        runCommand(command)
-        print("")
-        print("As Novas regras são:")
-        command2="sudo iptables -v -L "+nome
-        runCommand(command2)
-      
-updateChains()
+        interfacePrint.drawStatusArea(screen,["Não Existe arquivos modificados"],4,printline)
+        return
+    else:                 
+        for file in modifiedFiles:
+            file=baseDir+file
+            nome=getServiceName(file)
+            ip=getServiceIP(file)
+            reloadMsg=f"{nome} - {ip}"
+            sucessReload.append(reloadMsg)
+            clearChain(nome)
+            createChain(nome,ip)
+            erros=setServiceRules(file,nome,screen)
+            if erros:
+                msg2=f'Erros encontrados no serviço:{nome}'
+                listErros.append(msg2)
+                for  erro in (erros):
+                    listErros.append(erro)
+                    
+    if listErros:
+        interfacePrint.drawStatusArea(screen,listErros,3,printline)
+       
+    else:
+        sucessMsg=["Nenhum erro encontrado, regras recarregadas com sucesso!","Serviços Modificados:"]+sucessReload
+        interfacePrint.drawStatusArea(screen,sucessMsg,1,printline)
 
-
-
+    return
 

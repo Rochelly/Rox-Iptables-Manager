@@ -1,4 +1,4 @@
-NAME=CREds
+NAME=LDAP2
 IP=10.3.38.101
 
 
@@ -11,7 +11,13 @@ ORIGEM=10.101.0.2     PORTS=2,23,25         PROTOCOL=tcp        REGRA=DROP      
 
 
 
+
+
  
+
+
+
+
 
 
 
