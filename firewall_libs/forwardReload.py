@@ -2,7 +2,7 @@ import os
 import datetime
 import subprocess
 import re
-import firewall_libs.intefacesPrints as interfacePrint
+
  
 dir_path = './rules-files'
 
@@ -15,6 +15,7 @@ def  getServiceName(fileName):
                 nome = linha.strip().split('=')[1]
                 break
     return nome
+
 
 def  getServiceIP(fileName):
     with open(fileName) as arquivo:
@@ -109,10 +110,8 @@ def clearChain(chain):
     runCommand(commandF)
     runCommand(commandX)
 
-def setServiceRules(nome_arquivo,chain,screen):
-
+def setServiceRules(nome_arquivo,chain):
     listErros=[]
-
     with open(nome_arquivo, 'r') as arquivo:
         for num_linha, linha in enumerate(arquivo.readlines()):
             rule=""
@@ -121,33 +120,26 @@ def setServiceRules(nome_arquivo,chain,screen):
             origem = re.search(r'ORIGEM=(.*?)\s+', linha)
             ports = re.search(r'PORTS=(.*?)\s+', linha)
             protocol = re.search(r'PROTOCOL=(.*?)\s+', linha)
-            #descricao = re.search(r'DESCRICAO="(.*?)"', linha)
-            regra = re.search(r'REGRA=(.*?)\s+', linha)
-            
+            regra = re.search(r'REGRA=(.*?)\s+', linha)          
             if origem and ports and protocol and regra:
-                #print(f'Linha {num_linha + 1}')
- 
                 rule=(f' sudo iptables -t filter -A {chain} -s  {origem.group(1)} -p {protocol.group(1)} -m multiport --dport {ports.group(1)} -m conntrack --ctstate NEW -j {regra.group(1)} ')
-              #  print('\n')
-               # print(rule)
                 if runCommand(rule):
                     erro=f'Erro na linha Linha {num_linha + 1} ({chain}) - Arquivo: {nome_arquivo}'
                     listErros.append(erro)
-                    screen.clear()
     return listErros
 
 
-def reloadRules(screen):
+def reloadRules():
 
-    listErros=[]
-    sucessMsg=[]
-    sucessReload=[]
-    printline=17
     baseDir="rules-files/"
+    errosMsg=[]
+    sucessMsg=[]
+    alertMsg=[]
+    sucessReload=[] 
     modifiedFiles=get_changed_files(dir_path)
+
     if len(modifiedFiles) == 0:
-        interfacePrint.drawStatusArea(screen,["Não Existe arquivos modificados"],4,printline)
-        return
+        alertMsg.append("Não Existe arquivos modificados")
     else:                 
         for file in modifiedFiles:
             file=baseDir+file
@@ -157,19 +149,15 @@ def reloadRules(screen):
             sucessReload.append(reloadMsg)
             clearChain(nome)
             createChain(nome,ip)
-            erros=setServiceRules(file,nome,screen)
+            erros=setServiceRules(file,nome)
             if erros:
                 msg2=f'Erros encontrados no serviço:{nome}'
-                listErros.append(msg2)
+                errosMsg.append(msg2)
                 for  erro in (erros):
-                    listErros.append(erro)
-                    
-    if listErros:
-        interfacePrint.drawStatusArea(screen,listErros,3,printline)
-       
-    else:
-        sucessMsg=["Nenhum erro encontrado, regras recarregadas com sucesso!","Serviços Modificados:"]+sucessReload
-        interfacePrint.drawStatusArea(screen,sucessMsg,1,printline)
+                    errosMsg.append(erro)
+            else:
+                sucessMsg=["Nenhum erro encontrado, regras recarregadas com sucesso!","Serviços Modificados:"]+sucessReload
 
-    return
+    allMsg = {'alert':alertMsg,'error':errosMsg,'sucess':sucessMsg}
+    return allMsg
 

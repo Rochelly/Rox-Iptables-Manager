@@ -1,13 +1,40 @@
 
 import curses
-import firewall_libs.intefacesPrints as interfacePrints
 
+def drawHeader(screen):
+    screen.clear()
+    screen.border(0)
+    screen.addstr(2, 8,"Bem-vindo ao assistente de configuração de firewall Iptables! " )
+    screen.addstr(3, 5, "O que deseja fazer?")
+    screen.addstr(4, 2, "Use as teclas de seta para cima e para baixo para selecionar uma opção:")
+    screen.addstr(5, 2, "Pressione Enter para selecionar uma opção:")
+    screen.addstr(14, 2,"Status Area:")
+    screen.hline( 15, 2, '_',100)
+    screen.refresh()
+    return
 
+def drawStatusArea(screen,listMsg,color,position):
+    printline=position
+    drawHeader(screen)
+    for alert in (listMsg):
+        screen.addstr(printline ,position, alert, curses.color_pair(color))
+        printline=printline+1
 
+def drawMsgStatusArea(allMsg,screen):
+    drawHeader(screen)
+    printline=17
+    if allMsg['alert']:
+        drawStatusArea(screen,allMsg['alert'],2,printline)
+    if allMsg['error']:
+        drawStatusArea(screen,allMsg['error'],3,printline)
+    if allMsg['sucess']:
+        drawStatusArea(screen,allMsg['sucess'],1,printline)
+
+    
 def startScreen():
     screen = curses.initscr()
     screen.keypad(True)
-    interfacePrints.drawHeader(screen)
+    drawHeader(screen)
     curses.noecho()
     curses.cbreak()
     curses.start_color()
@@ -51,7 +78,7 @@ def mainMenu(menu_items,functionsList):
                 print("Até logo!") 
                 break
             else:
-                functionsList[option](screen)
+                drawMsgStatusArea(functionsList[option](),screen)
     return
                 
   

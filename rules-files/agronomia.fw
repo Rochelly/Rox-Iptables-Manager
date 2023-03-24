@@ -2,10 +2,10 @@ NAME=2LDAP
 IP=10.3.38.101
 
 
-
 #IP ou  Rede   |    PORTAS separadas por virgula    Protocolo=tcp,udp    Tag          Regra=ACCEPT,DROP,REJECT
-ORIGEM=10.0.101.0/24 2  PORTS=22              PROTOCOL=tcp             REGRA=ACCEPT    DESCRICAO=""
-ORIGEM=10.101.0.22  PORTS=2,23,25         PROTOCOL=tcp        REGRA=DROP      DESCRICAO=""   
+ORIGEM=10.0.101.0/24   PORTS=22              PROTOCOL=tcp             REGRA=ACCEPT    DESCRICAO=""
+ORIGEM=10.101.0.222  PORTS=2,23,25         PROTOCOL=tcp        REGRA=DROP      DESCRICAO=""   
+
 
 
 
