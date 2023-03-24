@@ -14,20 +14,25 @@ def drawHeader(screen):
     return
 
 def drawStatusArea(screen,listMsg,color,position):
-    printline=position
-    drawHeader(screen)
+    #drawHeader(screen)
     for alert in (listMsg):
-        screen.addstr(printline ,position, alert, curses.color_pair(color))
-        printline=printline+1
+        screen.addstr(position ,5, alert, curses.color_pair(color))
+        position=position+1
+    return position+1
+
 
 def drawMsgStatusArea(allMsg,screen):
     drawHeader(screen)
     printline=17
     if allMsg['alert']:
-        drawStatusArea(screen,allMsg['alert'],2,printline)
+     #   print('Temos Alertas')
+        printline=drawStatusArea(screen,allMsg['alert'],2,printline)
     if allMsg['error']:
-        drawStatusArea(screen,allMsg['error'],3,printline)
+      #  print('Temos Erros')
+        printline=drawStatusArea(screen,allMsg['error'],3,printline)
+       
     if allMsg['sucess']:
+       # print('Temos sucesso')
         drawStatusArea(screen,allMsg['sucess'],1,printline)
 
     
@@ -78,13 +83,14 @@ def mainMenu(menu_items,functionsList):
                 print("Até logo!") 
                 break
             else:
-                drawMsgStatusArea(functionsList[option](),screen)
+               drawMsgStatusArea(functionsList[option](),screen)
     return
                 
   
     
 
     
+
 
 
 

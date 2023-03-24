@@ -15,6 +15,7 @@ ORIGEM=10.101.0.30     PORTS=2,23,25         PROTOCOL=tcp        REGRA=DROP     
 
 
 
+
  
 
 

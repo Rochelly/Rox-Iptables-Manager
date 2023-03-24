@@ -13,7 +13,7 @@ def  getInFIle(fileName,key):
 
 # Retorna a lista de arquivos modificados de um determinado diretório
 def getChangedFiles(dir_path):
-
+    
     # Cria um arquivo auxiliar para armazenar a data da última verificação
     last_checked_file = 'firewall_libs/last_checked.txt'
 
@@ -43,3 +43,54 @@ def getChangedFiles(dir_path):
 
     # Retorna a lista de arquivos modificados
     return changed_files
+
+def writeFiles(lista_strings, nome_arquivo):
+    with open(nome_arquivo, 'w') as arquivo:
+        for linha in lista_strings:
+            arquivo.write(linha + '\n')
+
+#cria um aquivo com a lista de arquivos do tipo  .fw de um determinado diretório
+def createFilesList(dir_path,filename):
+    files = os.listdir(dir_path)
+    filesChains=[]
+    for file in files:
+        if file.endswith('.fw'):
+            chain=getInFIle(dir_path+file,'NAME')
+            filesChains.append(f'{file}={chain}')
+    writeFiles(filesChains,filename)
+
+
+def comparar_arquivos(ald, new):
+    with open(ald, 'r') as f1, open(new, 'r') as f2:
+        linhas1 = set(f1.readlines())
+        linhas2 = set(f2.readlines())
+        linhas_diferentes = linhas1 - linhas2
+    return list(linhas_diferentes)
+
+
+
+def checkDeletedFiles(dirPathServices,serviceType):
+    oldFileName=serviceType+'.old'
+    newFileName=serviceType+'.new'
+    listDeletedFiles=[]
+    if os.path.exists(oldFileName):
+        createFilesList(dirPathServices,newFileName)
+        listDeletedFiles= comparar_arquivos(oldFileName,newFileName)
+        os.remove(oldFileName)
+        os.rename(newFileName,oldFileName)
+    else:
+        createFilesList(dirPathServices,oldFileName)
+    return listDeletedFiles
+    
+
+
+
+
+
+#dirPathServices = '../services-rules-files/'
+
+#print(checkDeletedFiles(dirPathServices,'Services'))
+
+#createFilesList(dirPathServices,'Services.list')
+
+#print(comparar_arquivos('../services-rules-files/antes','../services-rules-files/depois'))

@@ -2,7 +2,7 @@
 import subprocess
 import re
 import firewall_libs.fileUtils as fileUtils
-
+import time
 # executa um comando no sistema operacional e retona o erro se tiver
 def runCommand(command):
     if not command:
@@ -47,6 +47,8 @@ def deleteForwardReference(target):
 
 
 def deleteChain(chain):
+    if not chain:
+        return
     deleteForwardReference(chain)
     commandF="sudo iptables -F "+chain
     commandX="sudo iptables -X "+chain
@@ -81,6 +83,13 @@ def setServiceRules(nome_arquivo,chain):
                     listErros.append(erro)
     return listErros
 
+def removeChainDeleted(dirPathServices,serviceType):
+    listDeletedFiles=fileUtils.checkDeletedFiles(dirPathServices,serviceType)
+    for fileName in listDeletedFiles:
+        name=fileName.split('=')
+        chain=name[1].strip()
+        deleteChain(chain)
+
 
 def reloadServiceRules(dirPathServices):
    # dirPathServices="rules-files/"
@@ -89,7 +98,7 @@ def reloadServiceRules(dirPathServices):
     alertMsg=[]
     sucessReload=[] 
     modifiedFiles=fileUtils.getChangedFiles(dirPathServices)
-
+    removeChainDeleted(dirPathServices,"Services")
     if len(modifiedFiles) == 0:
         alertMsg.append("Não Existe arquivos modificados")
     else:                 
@@ -97,16 +106,29 @@ def reloadServiceRules(dirPathServices):
             file=dirPathServices+file
             nome=fileUtils.getInFIle(file,'NAME')
             ip=fileUtils.getInFIle(file,'IP')
+            if (not ip) or (not nome):
+                errosMsg.append(f'O arquivo {file} não esta configurado corretamente')
+                #time.sleep(5)
+                runCommand(f'touch {file}')
+                continue
             reloadMsg=f"{nome} - {ip}"
             sucessReload.append(reloadMsg)
             createChainService(nome,ip)
             erros=setServiceRules(file,nome)
             if erros:
                 msg2=f'Erros encontrados no serviço:{nome}'
+                #time.sleep(5)
+                runCommand(f'touch {file}')
                 errosMsg.append(msg2)
                 for  erro in (erros):
                     errosMsg.append(erro)
             else:
                 sucessMsg=["Nenhum erro encontrado, regras recarregadas com sucesso!","Serviços Modificados:"]+sucessReload
+            
+            nome=''
+            ip=''    
+
+  
     allMsg = {'alert':alertMsg,'error':errosMsg,'sucess':sucessMsg}
+    print(allMsg)
     return allMsg
