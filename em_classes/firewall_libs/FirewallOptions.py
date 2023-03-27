@@ -3,12 +3,6 @@
  
 dirPathServices = './services-rules-files/'
 
-
-
-
-
-
-
 def reloadRules():
     print("aqui")
     return #  fw.reloadServiceRules(dirPathServices)

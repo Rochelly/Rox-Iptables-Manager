@@ -84,13 +84,3 @@ def checkDeletedFiles(dirPathServices,serviceType):
     
 
 
-
-
-
-#dirPathServices = '../services-rules-files/'
-
-#print(checkDeletedFiles(dirPathServices,'Services'))
-
-#createFilesList(dirPathServices,'Services.list')
-
-#print(comparar_arquivos('../services-rules-files/antes','../services-rules-files/depois'))

@@ -5,21 +5,19 @@ import firewall_libs.FirewallOptions as firewall
 
 def main():
 
-    functionsList=[firewall.reloadRules,
-                   firewall.reloadRules,
-                   firewall.reloadRules,
-                   "sair"]
-
-
-    with open("em_classes/firewall_libs/confgs.json") as config:
+    functionalities_Dic={ 
+        "Recarregar regras de serviços":firewall.reloadRules,
+        "Listar serviços recentemente alterados":firewall.reloadRules,
+        "Cadastrar Novo Serviço":firewall.reloadRules,
+        "sair":firewall.reloadRules}
+   
+    with open("firewall_libs/confgs.json") as config:
         config_file=json.load(config)
-    
+    header_menu=config_file["menu_config"]["menu_header"]
 
-    
-    my_menu = Menu(config_file["menu_config"]["menu_items"],functionsList
-                   , config_file["menu_config"]["menu_header"])
+    my_menu = Menu(functionalities_Dic,header_menu)
     my_menu.show()
-
+   
 
 if __name__ == '__main__':
     main()

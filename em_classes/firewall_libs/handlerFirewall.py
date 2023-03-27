@@ -1,8 +1,8 @@
 
 import subprocess
 import re
-import firewall_libs.fileUtils as fileUtils
-import time
+import old.fileUtils as fileUtils
+
 # executa um comando no sistema operacional e retona o erro se tiver
 def runCommand(command):
     if not command:
