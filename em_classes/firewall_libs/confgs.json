@@ -1,0 +1,28 @@
+{
+    "paths_dir":{
+            "firewall-libs":"firewall-libs",
+            "menu_file":"em_classes/firewall_libs/menu.json"
+
+    },
+    "menu_config":{
+        "menu_items": [
+            "Recarregar regras de serviços",
+            "Listar serviços recentemente alterados",
+            "Cadastrar Novo Serviço",
+            "sair"
+        ],
+        "menu_functions": [
+            "myprint",
+            "myprint",
+            "myprint",
+            "sair"
+        ],
+        "menu_header": [
+            "Bem-vindo ao assistente de configuração de firewall Iptables!",
+            "O que deseja fazer?",
+            "Use as teclas de seta para cima ↑ e para baixo ↓ para selecionar uma opção:",
+            "Pressione ENTER para selecionar uma opção:"
+        ]
+    }
+    
+}
