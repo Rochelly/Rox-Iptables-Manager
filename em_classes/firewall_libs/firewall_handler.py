@@ -71,25 +71,82 @@ class Firewall_Handler:
         referenceChain="sudo iptables -t filter -I FORWARD -s "+ip+" -j "+chain
         self.run_command(referenceChain)    
 
-    def setServiceRules(nome_arquivo,chain):
-        listErros=[]
-        with open(nome_arquivo, 'r') as arquivo:
-            for num_linha, linha in enumerate(arquivo.readlines()):
-                rule=""
-                if linha.startswith('#'):
-                    continue
-                origem = re.search(r'ORIGEM=(.*?)\s+', linha)
-                ports = re.search(r'PORTS=(.*?)\s+', linha)
-                protocol = re.search(r'PROTOCOL=(.*?)\s+', linha)
-                regra = re.search(r'REGRA=(.*?)\s+', linha)          
-                if origem and ports and protocol and regra:
-                    rule=(f' sudo iptables -t filter -A {chain} -s  {origem.group(1)} -p {protocol.group(1)} -m multiport --dport {ports.group(1)} -m conntrack --ctstate NEW -j {regra.group(1)} ')
-                    if runCommand(rule):
-                        erro=f'Erro na linha Linha {num_linha + 1} ({chain}) - Arquivo: {nome_arquivo}'
-                        listErros.append(erro)
-        return listErros
 
+    def split_port_10(self,ports):
+        substrings = ports.split(",")
+        sublists = []
+        temp = []
 
+        for s in substrings:
+            temp.append(s)
+            if len(temp) == 10:
+                sublists.append(",".join(temp))
+                temp = []
+
+        if len(temp) > 0:
+            sublists.append(",".join(temp))
+        return sublists    
+
+    def extract_filter_rules_from_file(self,file_name, chain):
+        list_errors = []
+        rules = []
+
+        try:
+            with open(file_name, 'r') as file:
+                for line_num, line in enumerate(file.readlines()):
+                    # Ignora as linhas de comentário
+                    if line.startswith('#'):
+                        continue
+
+                # Extrai os parâmetros da regra de firewall a partir da linha de configuração
+                    source_address = re.search(r'ORIGEM=([^\s]+)', line)
+                    destination_address = re.search(r'DESTINO=([^\s]+)', line)
+                    protocol = re.search(r'PROTOCOLO=([^\s]+)', line)
+                    rule_action = re.search(r'REGRA=([^\s]+)', line)
+                    port_list = re.search(r'PORTAS=([^\s]+)', line)
+
+                # Cria o comando da regra de firewall com base nos parâmetros extraídos
+                    if source_address and source_address.group(1) != '*':
+                        source = f'-s {source_address.group(1)}'
+                    else:
+                        source = ''
+
+                    if destination_address and destination_address.group(1) != '*':
+                        destination = f'-d {destination_address.group(1)}'
+                    else:
+                        destination = ''
+
+                    if protocol and protocol.group(1) != '*':
+                        protocol = f'-p {protocol.group(1)}'
+                    else:
+                        protocol = ''
+
+                    if rule_action and rule_action.group(1) != '*':
+                        action = f'-j {rule_action.group(1)}'
+                    else:
+                        action = '-j ACCEPT'
+
+                    if port_list:
+                        ports = self.split_port_10(port_list.group(1))
+
+                        for port_group in ports:
+                            if port_group and port_group != '*':
+                                ports_cmd = f'-m multiport --dport {port_group}'
+                                rule_cmd = f"sudo iptables -t filter -A {chain} {source} {destination} {protocol} {ports_cmd} {action}"
+                                rules.append(rule_cmd)
+                    else:
+                        rule_cmd = f"sudo iptables -t filter -A {chain} {source} {destination} {protocol} {action}"
+                        rules.append(rule_cmd)
+
+            return rules
+
+        except FileNotFoundError:
+            list_errors.append(f"File {file_name} not found.")
+            return list_errors
+
+        except Exception as e:
+            list_errors.append(f"An error occurred: {e}")
+            return list_errors
 
 
 
@@ -97,5 +154,5 @@ class Firewall_Handler:
 myFH=Firewall_Handler()
 
 
-myFH.create_chain_destination('ROX',"10.0.101.7")
-myFH.create_chain_soucer('ROX2',"10.0.101.7")
+my_file_utils=Firewall_Handler()
+print(my_file_utils.extract_filter_rules_from_file("/home/rochelly/roxFirewallman/em_classes/services-rules-files/biologia.fw",'ROX'))
