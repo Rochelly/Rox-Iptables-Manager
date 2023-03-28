@@ -1,6 +1,6 @@
 import json
 from firewall_libs.menu import Menu
-import firewall_libs.FirewallOptions as firewall 
+import firewall_libs.menu_funcions as firewall 
 
 
 def main():

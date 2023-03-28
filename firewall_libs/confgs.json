@@ -5,18 +5,6 @@
 
     },
     "menu_config":{
-        "menu_items": [
-            "Recarregar regras de serviços",
-            "Listar serviços recentemente alterados",
-            "Cadastrar Novo Serviço",
-            "sair"
-        ],
-        "menu_functions": [
-            "myprint",
-            "myprint",
-            "myprint",
-            "sair"
-        ],
         "menu_header": [
             "Bem-vindo ao assistente de configuração de firewall Iptables!",
             "O que deseja fazer?",

@@ -1,6 +1,9 @@
+
 import os
 import datetime
-import re
+
+
+
 class File_Utils:
 
     def __init__(self,dir_base) -> None:
@@ -21,9 +24,11 @@ class File_Utils:
               
 
     def get_changed_files(self):
+        
         if os.path.exists(self.last_checked_file):
             with open(self.last_checked_file, 'r') as f:
-                last_checked_date = datetime.datetime.fromisoformat(f.read().strip())
+                self.last_checked_date = datetime.datetime.fromisoformat(f.read().strip())
+        
         
         files = os.listdir(self.dir_base)
         modified_files = []
@@ -31,10 +36,15 @@ class File_Utils:
         for file in files:
             file_path = os.path.join(self.dir_base, file)
             modification_time = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
-            if modification_time > last_checked_date and os.path.splitext(file)[-1] == '.fw':
+            if modification_time > self.last_checked_date and os.path.splitext(file)[-1] == '.fw':
                 modified_files.append(file)
 
         with open(self.last_checked_file, 'w') as f:
             f.write(datetime.datetime.now().isoformat())
 
         return modified_files
+
+    def write_files(lista_strings, nome_arquivo):
+        with open(nome_arquivo, 'w') as arquivo:
+            for linha in lista_strings:
+                arquivo.write(linha + '\n')

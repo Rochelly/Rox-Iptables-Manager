@@ -1,5 +1,0 @@
-DEBUG:root:Isso é uma mensagem de debug
-INFO:root:Isso é uma mensagem de informação
-WARNING:root:Isso é uma mensagem de aviso
-ERROR:root:Isso é uma mensagem de erro
-CRITICAL:root:Isso é uma mensagem de erro crítico
