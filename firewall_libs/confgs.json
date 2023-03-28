@@ -1,8 +1,10 @@
 {
     "paths_dir":{
+            "install_path":"",
             "firewall-libs":"firewall-libs",
-            "menu_file":"em_classes/firewall_libs/menu.json"
-
+            "service_path":"",
+            "net_path":""
+         
     },
     "menu_config":{
         "menu_header": [
