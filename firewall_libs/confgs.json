@@ -3,7 +3,9 @@
             "install_path":"",
             "firewall-libs":"firewall-libs",
             "service_path":"",
-            "net_path":""
+            "net_path":"",
+            "log_file":"/home/rochelly/roxFirewallman/firewall_libs/firewall.log",
+            "log_file_tmp":"/home/rochelly/roxFirewallman/firewall_libs/.tmp_firewall.log"
          
     },
     "menu_config":{

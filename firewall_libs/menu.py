@@ -1,12 +1,13 @@
 import curses
-
+import time
 class Menu:
     def __init__(self, functionalities_Dic, header_msg, log_file) -> None:
         self.menu_options = functionalities_Dic
         self.header_msg = header_msg
         self.log_file = log_file
         self.menu_position = len(header_msg)+4
-        self.status_area_position = 0
+        self.status_area_position = len(functionalities_Dic)*2 + len(header_msg) + 5
+        self.min_col_required = 110
         self.current_row = 0
         self.option = 0
         self.screen = 0
@@ -51,7 +52,7 @@ class Menu:
         self.screen.addstr(line, 2, 'Status Area:', 2)
         line += 1
         self.screen.hline(line, 2, '_', 100)
-        self.status_area_position = line+2
+       # self.status_area_position = line+2
         self.screen.refresh()
 
     def _change_items_colors(self):
@@ -64,11 +65,20 @@ class Menu:
                                    4, item, curses.color_pair(2))
         self.screen.refresh()
 
+
+
+
     def _run(self, stdscr):
         try:
             self.screen = stdscr
-            self._start_screen()
             self.max_row, self.max_col = self.screen.getmaxyx()
+            if self.status_area_position > self.max_row:
+                print("A janela do terminal é muito pequena, tente com uma janela maior.") 
+                time.sleep(2)
+                return
+      
+            self._start_screen()
+      
             while True:
                 self._change_items_colors()
                 key = self.screen.getch()
@@ -92,6 +102,7 @@ class Menu:
 
     def _draw_status_area(self):
         statu_are_line = self.status_area_position
+ 
         with open(self.log_file, 'r+') as file:
             for line in file:
                 statu_are_line = statu_are_line + 1
