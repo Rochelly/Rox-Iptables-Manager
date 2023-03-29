@@ -1,22 +1,10 @@
 
 
-
-
-
 def reloadRules():
     pass
 
 
-
-
-
-
- 
-
-
-
 # dirPathServices = './services-rules-files/'
-
 
 
 # last_checked_file = '/home/rochelly/roxFirewallman/em_classes/firewall_libs/last_checked.txt'
@@ -29,12 +17,3 @@ def reloadRules():
 
 
 # my_fw.reload_dir_rules_services("/home/rochelly/roxFirewallman/em_classes/services-rules-files/")
-
-
-
-
-
-
-
-
-
