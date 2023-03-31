@@ -5,7 +5,9 @@ import firewall_libs.menu_funcions as firewall
 
 def main():
 
-    conf_path_file = "/home/rochelly/roxFirewallman/firewall_libs/confgs.json"
+
+    conf_path_file = "/home/rochelly/Projetos/roxFirewallman/firewall_libs/confgs.json"
+
 
 
     functionalities_Dic = {

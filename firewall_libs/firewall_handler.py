@@ -9,6 +9,7 @@ class Firewall_Handler:
 
     def __init__(self, log_file, last_checked_file) -> None:
         self.log_file = log_file  # arquivo de los
+
         # aquivo que armazena a ultima checagem
         self.last_checked_file = last_checked_file
         pass
