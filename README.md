@@ -16,7 +16,7 @@ The project is under development and new features may be implemented in the futu
 
 ## Descrição do projeto 🇧🇷
 O Rox Ipatables Manager é uma ferramenta para gerenciar o firewall do sistema operacional Linux usando o utilitário iptables. 
-O projeto é composto por duas classes: Firewall_Handler e Menu. A classe Firewall_Handler é responsável por realizar as operações no firewall e manipular os arquivos de regras. A classe Menu cria um menu interativo para terminal.
+O projeto é composto por duas classes (Até o momento): Firewall_Handler e Menu. A classe Firewall_Handler é responsável por realizar as operações no firewall e manipular os arquivos de regras. A classe Menu cria um menu interativo para terminal.
 
 ### Funcionalidades
 Até o momento, as seguintes funcionalidades foram implementadas no Rox Ipatables Manager:
