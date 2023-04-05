@@ -1,25 +1,22 @@
 import json
 from firewall_libs.menu import Menu
-from  firewall_libs.firewall_handler import Firewall_Handler
+from firewall_libs.firewall_handler import Firewall_Handler
 
 
 def main():
-    
-    #load configuration file (json)
+
+    # load configuration file (json)
     conf_path_file = "/home/rochelly/Projetos/roxFirewallman/firewall_libs/confgs.json"
     with open(conf_path_file) as config:
-            config_file = json.load(config)
+        config_file = json.load(config)
 
-    
-    #load parameters from conf file
+    # load parameters from conf file
     header_menu = config_file["menu_config"]["menu_header"]
     log_file = config_file["paths_dir"]["log_file_tmp"]
     last_checked_file = config_file["paths_dir"]["last_checked_file"]
-    
-    
-    #instancia uma novo firewall handler
-    my_fw=Firewall_Handler(log_file,last_checked_file)
-     
+
+    # instancia uma novo firewall handler
+    my_fw = Firewall_Handler(log_file, last_checked_file)
 
     # Opções do menu a ser criado em uma screen
     functionalities_Dic = {
