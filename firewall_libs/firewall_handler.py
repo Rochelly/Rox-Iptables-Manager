@@ -300,3 +300,21 @@ class Firewall_Handler:
         allMsg = {'alert': alertMsg, 'error': errosMsg, 'sucess': sucessMsg}
         print(allMsg)
         return allMsg
+
+
+
+
+
+
+    
+    def reloadRules(self):
+        pass
+
+    def list_modified_services(self):
+        pass
+
+    def create_new_service(self):
+        pass
+
+    def create_new_sub_net(self):
+        pass

@@ -9,13 +9,14 @@ class Menu:
         self.log_file = log_file
         self.menu_position = len(header_msg)+4
         self.status_area_position = len(
-            functionalities_Dic)*2 + len(header_msg) + 5
+            functionalities_Dic) + len(header_msg) + 8
         self.min_col_required = 110
         self.current_row = 0
         self.option = 0
         self.screen = 0
         self.max_row = 0
         self.max_col = 0
+    
 
     def _start_screen(self):
         self.screen.keypad(True)
@@ -45,17 +46,20 @@ class Menu:
     def _draw_header(self):
         self.screen.clear()
         self.screen.border(0)
-        line = 3
+        line = 2
         for msg in self.header_msg:
             print(msg)
             self.screen.addstr(line, 10, msg, 2)
             line += 1
 
-        line = line + len(self.menu_options) + 3
+        line = line + len(self.menu_options) + 2 
+        
+        
+    
         self.screen.addstr(line, 2, 'Status Area:', 2)
         line += 1
         self.screen.hline(line, 2, '_', 100)
-       # self.status_area_position = line+2
+        self.status_area_position = line+2
         self.screen.refresh()
 
     def _change_items_colors(self):
@@ -73,8 +77,7 @@ class Menu:
             self.screen = stdscr
             self.max_row, self.max_col = self.screen.getmaxyx()
             if self.status_area_position > self.max_row:
-                print(
-                    "A janela do terminal é muito pequena, tente com uma janela maior.")
+                print("A janela do terminal é muito pequena, tente com uma janela maior.")
                 time.sleep(2)
                 return
 
@@ -95,6 +98,7 @@ class Menu:
                         print("Até logo!")
                         break
                     else:
+                        
                         self.menu_options[option]()
                         self._draw_status_area()
         except Exception as e:
@@ -102,13 +106,13 @@ class Menu:
         return
 
     def _draw_status_area(self):
-        statu_are_line = self.status_area_position
+        status_are_line = self.status_area_position
 
         with open(self.log_file, 'r+') as file:
             for line in file:
-                statu_are_line = statu_are_line + 1
+                status_are_line = status_are_line + 1
                 self.max_row, self.max_col = self.screen.getmaxyx()
-                if statu_are_line < self.max_row - 2:
+                if status_are_line < self.max_row :
                     parts = line.strip().split(':')
                     if len(parts) >= 3:
                         level = parts[0]
@@ -116,20 +120,23 @@ class Menu:
 
                         if level == 'ERROR':
                             self.screen.addstr(
-                                statu_are_line, 10, message, curses.color_pair(3))
+                                status_are_line, 10, message, curses.color_pair(3))
                         if level == 'INFO':
                             self.screen.addstr(
-                                statu_are_line, 10, message, curses.color_pair(1))
+                                status_are_line, 10, message, curses.color_pair(1))
                         if level == 'DEBUG':
                             self.screen.addstr(
-                                statu_are_line, 10, message, curses.color_pair(5))
+                                status_are_line, 10, message, curses.color_pair(5))
                 else:
                     msg = f"O tamanho maximo do terminal atigindo ({self.max_row} X {self.max_col})! - Amplie a janela para ver mais "
-                    self.screen.addstr(statu_are_line, 2,
-                                       msg, curses.color_pair(4))
+                  #  self.screen.addstr(10, 50,
+                                     #  msg, curses.color_pair(4))
+
                     break
            # file.truncate(0)
 
     def show(self):
         curses.wrapper(self._run)
         return
+    
+    
