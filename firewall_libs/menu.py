@@ -92,7 +92,7 @@ class Menu:
                     self.current_row += 1
                 elif key == curses.KEY_ENTER or key in [10, 13]:
                     option = list(self.menu_options.keys())[self.current_row]
-                    if option == "sair":
+                    if option == "Exit":
                       #  self._stop_screen()
                         print("Até logo!")
                         break

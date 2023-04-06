@@ -7,12 +7,14 @@ import datetime
 
 class Firewall_Handler:
 
-    def __init__(self, log_file, last_checked_file) -> None:
-        self.log_file = log_file  # arquivo de los
+    def __init__(self, config_file) -> None:
+        self.log_file = config_file["paths_dir"]["log_file_tmp"]
+        self.last_checked_file = config_file["paths_dir"]["last_checked_file"]
+        self.service_dir = config_file["paths_dir"]["service_rules_path"]
+        self.input_file_rules = config_file["paths_dir"]["input_file_rules"]
+        self.net_rules_dir = config_file["paths_dir"]["net_rules_path"]
 
-        # aquivo que armazena a ultima checagem
-        self.last_checked_file = last_checked_file
-        pass
+    pass
 
     def run_command(self, command):
         try:
@@ -301,13 +303,10 @@ class Firewall_Handler:
         print(allMsg)
         return allMsg
 
+    # [ ]: Criar a função para recarregar as regras
 
-
-
-
-
-    
     def reloadRules(self):
+
         pass
 
     def list_modified_services(self):
