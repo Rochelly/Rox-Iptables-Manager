@@ -15,6 +15,7 @@ def main():
     with open(conf_path_file) as config:
         config_file = json.load(config)
 
+
     # load parameters from conf file
     header_menu = config_file["menu_config"]["menu_header"]
     log_file = config_file["paths_dir"]["log_file_tmp"]
