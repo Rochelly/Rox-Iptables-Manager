@@ -1,4 +1,5 @@
 import json
+import os
 from firewall_libs.menu import Menu
 from firewall_libs.firewall_handler import Firewall_Handler
 
@@ -10,8 +11,11 @@ def main():
 
     :return: None
     """
-    # load configuration file (json)
-    conf_path_file = "/home/rochelly/Projetos/roxFirewallman/firewall_libs/confgs.json"
+    
+    
+   
+    
+    conf_path_file = os.path.join("firewall_libs","confgs.json")
     with open(conf_path_file) as config:
         config_file = json.load(config)
 

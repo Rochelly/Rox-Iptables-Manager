@@ -2,10 +2,10 @@
     "paths_dir": {
         "install_path": "",
         "firewall-libs": "firewall-libs",
-        "service_rules_path": "/home/rochelly/Projetos/roxFirewallman/services-rules-files",
-        "net_rules_path": "/home/rochelly/Projetos/roxFirewallman/net-rules-files",
-        "log_file": "/home/rochelly/Projetos/roxFirewallman/firewall_libs/firewall.log",
-        "log_file_tmp": "/home/rochelly/Projetos/roxFirewallman/firewall_libs/.tmp_firewall.log",
+        "service_rules_path": "services-rules-files",
+        "net_rules_path": "net-rules-files",
+        "log_file": "firewall_libs/firewall.log",
+        "log_file_tmp": "firewall_libs/.tmp_firewall.log",
         "input_file_rules": "",
         "last_checked_file":"/home/rochelly/Projetos/roxFirewallman/firewall_libs/.last_checked.txt",
         "net_rules_dir": ""

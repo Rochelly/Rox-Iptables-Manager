@@ -14,8 +14,6 @@ class Firewall_Handler:
         self.input_file_rules = config_file["paths_dir"]["input_file_rules"]
         self.net_rules_dir = config_file["paths_dir"]["net_rules_path"]
 
-    pass
-
     def run_command(self, command):
         try:
             args = command.split()
@@ -85,6 +83,7 @@ class Firewall_Handler:
         temp = []
 
         for s in substrings:
+
             temp.append(s)
             if len(temp) == 10:
                 sublists.append(",".join(temp))
@@ -306,6 +305,7 @@ class Firewall_Handler:
     # [ ]: Criar a função para recarregar as regras
 
     def reloadRules(self):
+        
 
         pass
 
