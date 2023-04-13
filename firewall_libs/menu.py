@@ -128,13 +128,15 @@ class Menu:
                         if level == 'DEBUG':
                             self.screen.addstr(
                                 status_are_line, 10, message, curses.color_pair(5))
+            
                 else:
                     msg = f"O tamanho maximo do terminal atigindo ({self.max_row} X {self.max_col})! - Amplie a janela para ver mais "
                   #  self.screen.addstr(10, 50,
                     #  msg, curses.color_pair(4))
-
+            
                     break
-           # file.truncate(0)
+            # TODO Apagar o arquvo de log depois  de copiar pro permanete
+            file.write('')
 
     def show(self):
         curses.wrapper(self._run)

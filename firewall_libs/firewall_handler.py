@@ -4,6 +4,7 @@ import re
 import os
 import datetime
 import time
+import logging
 
 
 class Firewall_Handler:
@@ -14,6 +15,7 @@ class Firewall_Handler:
         self.service_dir = config_file["paths_dir"]["service_rules_path"]
         self.input_file_rules = config_file["paths_dir"]["input_file_rules"]
         self.net_rules_dir = config_file["paths_dir"]["net_rules_path"]
+        logging.basicConfig(filename=self.log_file, level=logging.DEBUG)
 
     def run_command(self, command):
         try:
@@ -253,26 +255,20 @@ class Firewall_Handler:
 
         # Retorna a lista de arquivos modificados
         return changed_files
-
-
-
-        
+       
 
     def reload_services_rules(self):
       
      
-        
+        # recupera todos os arquivos que foram alterados desde de a ultima execussão do script 
         modified_files = self.get_changed_files(self.service_dir)
+        # remove regras relacioandas a arquivos deletados
+        self.remove_Chain_Deleted(self.service_dir)
 
-        print(modified_files)
-        time.sleep(3)
-        # self.remove_Chain_Deleted(dir_Path)
-
-        # if len(modified_files) == 0:
-        #     print("Não Existe arquivos modificados")
-        # else:
-        #     print("Existe aquivos modificados")
-
+        if len(modified_files) == 0:
+             logging.info('Nenhum arquivo foi modificado desde a ultima verificação')
+        else:
+             return
         #     for file in modified_files:
         #         file = dir_Path+file
         #         nome = self.get_in_file(file, 'NAME')
