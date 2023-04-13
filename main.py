@@ -29,11 +29,13 @@ def main():
 
     # dictionary of menu options and associated functions
     functionalities_Dic = {
-        "Reload service rules": my_fw.reloadRules,
+        "Reload service rules": my_fw.reload_services_rules,
+        "Reload all rules": my_fw.realod_all_rules,
         "List recently modified services": my_fw.list_modified_services,
         "Create new service": my_fw.create_new_service,
         "Create new subnet": my_fw.create_new_sub_net,
-        "Exit": my_fw.reloadRules}
+        "Exit": my_fw.quit}
+    
 
     # create a menu screen that takes as parameters the options and functions, the header, and the log file
     my_menu = Menu(functionalities_Dic, header_menu, log_file)

@@ -3,6 +3,7 @@ import subprocess
 import re
 import os
 import datetime
+import time
 
 
 class Firewall_Handler:
@@ -221,7 +222,7 @@ class Firewall_Handler:
 
     def get_changed_files(self, dir_path):
 
-        # Cria um arquivo auxiliar para armazenar a data da última verificação
+      
 
         # Obtém a data da última verificação a partir do arquivo auxiliar ou usa uma data antiga se não existir
         if os.path.exists(self.last_checked_file):
@@ -253,60 +254,63 @@ class Firewall_Handler:
         # Retorna a lista de arquivos modificados
         return changed_files
 
-    def reload_dir_rules_services(self, dir_Path):
 
-        errosMsg = []
-        sucessMsg = []
-        alertMsg = []
-        sucessReload = []
-        modified_files = self.get_changed_files(dir_Path)
+
+        
+
+    def reload_services_rules(self):
+      
+     
+        
+        modified_files = self.get_changed_files(self.service_dir)
 
         print(modified_files)
+        time.sleep(3)
+        # self.remove_Chain_Deleted(dir_Path)
 
-        self.remove_Chain_Deleted(dir_Path)
+        # if len(modified_files) == 0:
+        #     print("Não Existe arquivos modificados")
+        # else:
+        #     print("Existe aquivos modificados")
 
-        if len(modified_files) == 0:
-            print("Não Existe arquivos modificados")
-        else:
-            print("Existe aquivos modificados")
+        #     for file in modified_files:
+        #         file = dir_Path+file
+        #         nome = self.get_in_file(file, 'NAME')
+        #         ip = self.get_in_file(file, 'IP')
+        #         if (not ip) or (not nome):
+        #             errosMsg.append(
+        #                 f'O arquivo {file} não esta configurado corretamente')
+        #      /       time.sleep(5)
+        #            (f'touch {file}')
+        #             continue
+        #         reloadMsg = f"{nome} - {ip}"
+        #         sucessReload.append(reloadMsg)
+        #         self.create_chain_destination(nome, ip)
+        #         erros = self.aply_rules_from_file(file, nome)
+        #         if erros:
+        #             msg2 = f'Erros encontrados no serviço:{nome}'
+        #             time.sleep(5)
+        #             runCommand(f'touch {file}')
+        #             errosMsg.append(msg2)
+        #             for erro in (erros):
+        #                 errosMsg.append(erro)
+        #         else:
+        #             sucessMsg = ["Nenhum erro encontrado, regras recarregadas com sucesso!",
+        #                          "Serviços Modificados:"]+sucessReload
 
-            for file in modified_files:
-                file = dir_Path+file
-                nome = self.get_in_file(file, 'NAME')
-                ip = self.get_in_file(file, 'IP')
-                if (not ip) or (not nome):
-                    errosMsg.append(
-                        f'O arquivo {file} não esta configurado corretamente')
-                    # time.sleep(5)
-                   # (f'touch {file}')
-                    continue
-                reloadMsg = f"{nome} - {ip}"
-                sucessReload.append(reloadMsg)
-                self.create_chain_destination(nome, ip)
-                erros = self.aply_rules_from_file(file, nome)
-                if erros:
-                    msg2 = f'Erros encontrados no serviço:{nome}'
-                    # time.sleep(5)
-                    # runCommand(f'touch {file}')
-                    errosMsg.append(msg2)
-                    for erro in (erros):
-                        errosMsg.append(erro)
-                else:
-                    sucessMsg = ["Nenhum erro encontrado, regras recarregadas com sucesso!",
-                                 "Serviços Modificados:"]+sucessReload
+        #         nome = ''
+        #         ip = ''
 
-                nome = ''
-                ip = ''
-
-        allMsg = {'alert': alertMsg, 'error': errosMsg, 'sucess': sucessMsg}
-        print(allMsg)
-        return allMsg
+        # allMsg = {'alert': alertMsg, 'error': errosMsg, 'sucess': sucessMsg}
+        # print(allMsg)
+        # return allMsg
+        
 
     # [ ]: Criar a função para recarregar as regras
 
-    def reloadRules(self):
-        
-
+        pass
+    
+    def realod_all_rules(sefl):
         pass
 
     def list_modified_services(self):
@@ -317,3 +321,6 @@ class Firewall_Handler:
 
     def create_new_sub_net(self):
         pass
+
+    def quit():
+        quit
