@@ -18,6 +18,10 @@ class Firewall_Handler:
         logging.basicConfig(filename=self.log_file, level=logging.DEBUG)
 
     def run_command(self, command):
+        print('')
+        print('')
+        print('')
+        print('')
         try:
             args = command.split()
             completed_process = subprocess.run(
@@ -27,6 +31,10 @@ class Firewall_Handler:
             return False,  error.stderr
 
     def run_command_no_out(self, command):
+        print('')
+        print('')
+        print('')
+        print('')
         try:
             args = command.split()
             subprocess.run(args, check=True,
@@ -97,6 +105,8 @@ class Firewall_Handler:
         return sublists
 
     def extract_filter_rules_from_file(self, file_name, chain):
+    
+    #BUG Verificar as portas e mudar o arquivo para inglês
 
         rules = []
         lines = []
@@ -224,8 +234,6 @@ class Firewall_Handler:
 
     def get_changed_files(self, dir_path):
 
-      
-
         # Obtém a data da última verificação a partir do arquivo auxiliar ou usa uma data antiga se não existir
         if os.path.exists(self.last_checked_file):
             with open(self.last_checked_file, 'r') as f:
@@ -255,57 +263,48 @@ class Firewall_Handler:
 
         # Retorna a lista de arquivos modificados
         return changed_files
-       
 
     def reload_services_rules(self):
-      
      
-        # recupera todos os arquivos que foram alterados desde de a ultima execussão do script 
+        # recupera todos os arquivos que foram alterados desde de a ultima execussão do script
         modified_files = self.get_changed_files(self.service_dir)
         # remove regras relacioandas a arquivos deletados
         self.remove_Chain_Deleted(self.service_dir)
 
         if len(modified_files) == 0:
-             logging.info('Nenhum arquivo foi modificado desde a ultima verificação')
+            logging.info(
+                'Nenhum arquivo foi modificado desde a ultima verificação')
         else:
-             return
-        #     for file in modified_files:
-        #         file = dir_Path+file
-        #         nome = self.get_in_file(file, 'NAME')
-        #         ip = self.get_in_file(file, 'IP')
-        #         if (not ip) or (not nome):
-        #             errosMsg.append(
-        #                 f'O arquivo {file} não esta configurado corretamente')
-        #      /       time.sleep(5)
-        #            (f'touch {file}')
-        #             continue
-        #         reloadMsg = f"{nome} - {ip}"
-        #         sucessReload.append(reloadMsg)
-        #         self.create_chain_destination(nome, ip)
-        #         erros = self.aply_rules_from_file(file, nome)
-        #         if erros:
-        #             msg2 = f'Erros encontrados no serviço:{nome}'
-        #             time.sleep(5)
-        #             runCommand(f'touch {file}')
-        #             errosMsg.append(msg2)
-        #             for erro in (erros):
-        #                 errosMsg.append(erro)
-        #         else:
-        #             sucessMsg = ["Nenhum erro encontrado, regras recarregadas com sucesso!",
-        #                          "Serviços Modificados:"]+sucessReload
+            for file in modified_files:
+                file = self.service_dir+file
+                # TODO Alterar o arquivo para inglês
+                nome = self.get_in_file(file, 'NAME')
+                ip = self.get_in_file(file, 'IP')
+                if (not ip) or (not nome):   # checa  se o arquivo tem o IP e nome da chain para continuar
+                    logging.error(
+                        f'O arquivo {file} não esta configurado corretamente')
+                    # se tiver algum problema,  atualiza a data de modificação do arquivo para que ele seja carregado novamnte
+                    self.run_command_no_out(f'touch {file}')
+                    continue
+       #         logging.info(f"{nome} - {ip}")
+                self.create_chain_destination(nome, ip)
+                erros = self.aply_rules_from_file(file, nome)
+                if erros:
+                    logging.debug(f'Erros encontrados no serviço:{nome}')
+                    self.run_command_no_out(f'touch {file}')
+                    for erro in (erros):
+                        logging.error(erro)
+                        
+                else:
+                    logging.info("Regras do Serviço {} recarregadas com  sucesso!".format(nome))
 
-        #         nome = ''
-        #         ip = ''
-
-        # allMsg = {'alert': alertMsg, 'error': errosMsg, 'sucess': sucessMsg}
-        # print(allMsg)
-        # return allMsg
         
+
 
     # [ ]: Criar a função para recarregar as regras
 
         pass
-    
+
     def realod_all_rules(sefl):
         pass
 

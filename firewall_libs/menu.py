@@ -48,7 +48,6 @@ class Menu:
         self.screen.border(0)
         line = 2
         for msg in self.header_msg:
-            print(msg)
             self.screen.addstr(line, 10, msg, 2)
             line += 1
 
@@ -107,6 +106,9 @@ class Menu:
         return
 
     def _draw_status_area(self):
+        
+        self.screen.clear()
+        self._draw_header()
         status_are_line = self.status_area_position
 
         with open(self.log_file, 'r+') as file:
