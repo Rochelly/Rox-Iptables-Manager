@@ -8,8 +8,10 @@
             "name": "Python: Arquivo Atual",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
+            //"program": "${file}",
+            "program": "main.py",
+            //"console": "integratedTerminal",
+            "console": "externalTerminal",
             "justMyCode": true
         }
     ]
