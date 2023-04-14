@@ -135,8 +135,8 @@ class Menu:
                     #  msg, curses.color_pair(4))
             
                     break
-            # TODO Apagar o arquvo de log depois  de copiar pro permanete
-            file.write('')
+        with open(self.log_file, "w") as arquivo:
+            arquivo.write("")
 
     def show(self):
         curses.wrapper(self._run)
