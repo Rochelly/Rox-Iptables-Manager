@@ -104,6 +104,15 @@ class Firewall_Handler:
             sublists.append(",".join(temp))
         return sublists
 
+
+
+    def get_rule_paramentres(line,parameter):
+        
+        
+        return valeu
+        pass
+    
+    
     def extract_filter_rules_from_file(self, file_name, chain):
     
     #BUG Verificar as portas e mudar o arquivo para inglês
@@ -118,11 +127,15 @@ class Firewall_Handler:
                     continue
 
             # Extrai os parâmetros da regra de firewall a partir da linha de configuração
-                source_address = re.search(r'ORIGEM=([^\s]+)', line)
-                destination_address = re.search(r'DESTINO=([^\s]+)', line)
-                protocol = re.search(r'PROTOCOLO=([^\s]+)', line)
-                rule_action = re.search(r'REGRA=([^\s]+)', line)
-                port_list = re.search(r'PORTAS=([^\s]+)', line)
+                source_address = re.search(r'sourcer=([^\s]+)', line)
+                destination_address = re.search(r'destination=([^\s]+)', line)
+                protocol = re.search(r'protocol=([^\s]+)', line)
+                rule_action = re.search(r'action=([^\s]+)', line)
+                port_list = re.search(r'ports=([^\s]+)', line)
+                
+                
+                # |logging.debug('Extração primário s: {} d: {} p:{} ports: {} action {}'.format(source_address,destination_address,protocol,port_list,rule_action))
+       
 
                 if not (source_address or destination_address or protocol or port_list):
                     continue
@@ -162,6 +175,9 @@ class Firewall_Handler:
                     lines.append(line_num)
 
         return lines, rules
+
+    def new_method(self):
+        logging.exception
 
     def aply_rules_from_file(self, file_name, chain):
         lines, rules = self.extract_filter_rules_from_file(file_name, chain)

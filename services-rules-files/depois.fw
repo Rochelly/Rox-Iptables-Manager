@@ -2,8 +2,12 @@ NAME=DEPOIS
 IP=10.3.38.101
 
 
-#IP ou  Rede   |    PORTAS separadas por virgula    Protocolo=tcp,udp    Tag          Regra=ACCEPT,DROP,REJECT
-ORIGEM=10.101.0.222  PORTS=2,23,25,30,232,23,25,30,232,23,25,30,232,23,25,30,232,23,25,30,232,23,25,30,23         PROTOCOL=udp        REGRA=DROP      DESCRICAO=""   
+#IP ou  Rede          PORTAS separadas por virgula    Protocolo=tcp,udp              Regra=ACCEPT,DROP,REJECT    descrição
+sourcer=10.101.0.222  destination=10.0.101.7  ports=2,23,25,30,232,23,25,30,232,23,25,30,232,23,25,30,232,23,25,30,232,23,25,30,23         protocol=udp        action=DROP      description="Teste"   
+
+
+
+
 
 
 
