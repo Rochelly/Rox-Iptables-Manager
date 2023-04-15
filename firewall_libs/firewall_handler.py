@@ -106,11 +106,17 @@ class Firewall_Handler:
 
 
 
-    def get_rule_paramentres(line,parameter):
+    def get_rule_parameters(line, parameter):      
+        value = re.search(rf'{parameter}=([^\s]+)', line)
+        print(value.group(1))
+        
+        return value.group(1)
         
         
-        return valeu
-        pass
+    
+    def format_rules():
+        rule=0
+        return rule
     
     
     def extract_filter_rules_from_file(self, file_name, chain):
@@ -125,6 +131,9 @@ class Firewall_Handler:
                 # Ignora as linhas de comentário
                 if line.startswith('#'):
                     continue
+                
+                
+                
 
             # Extrai os parâmetros da regra de firewall a partir da linha de configuração
                 source_address = re.search(r'sourcer=([^\s]+)', line)
