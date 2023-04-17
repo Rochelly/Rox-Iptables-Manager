@@ -104,86 +104,84 @@ class Firewall_Handler:
             sublists.append(",".join(temp))
         return sublists
 
-
-
-    def get_rule_parameters(line, parameter):      
+    def get_rule_parameters(self, line, parameter):
         value = re.search(rf'{parameter}=([^\s]+)', line)
-        print(value.group(1))
-        
-        return value.group(1)
-        
-        
-    
-    def format_rules():
-        rule=0
-        return rule
-    
-    
-    def extract_filter_rules_from_file(self, file_name, chain):
-    
-    #BUG Verificar as portas e mudar o arquivo para inglês
 
+        if value:
+            return value.group(1)
+        else:
+            return False
+
+    def create_rules(self, chain, source, destination, protocol, ports, action):
+        # retorna uma lista de regras  a partir uma linha extraida do arquivo
         rules = []
-        lines = []
+
+        if not (source or destination or protocol or ports):
+            return rules
+
+        
+
+        if source and source != '*':
+            source = f' -s {source} '
+        else:
+            source = ''
+
+        if destination and destination != '*':
+            destination = f' -d {destination} '
+        else:
+            destination = ''
+
+        if protocol and protocol != '*':
+            protocol = f' -p {protocol} '
+        else:
+            protocol = ''
+
+        if action and action != '*':
+            action = f'-j {action}'
+        else:
+            action = ' -j ACCEPT'
+
+        if ports and ports != '*':
+            ports_list = self.split_port_10(ports)
+
+            for port_group in ports_list:
+                ports_cmd = f'-m multiport --dport {port_group}'
+                rule_cmd = f"sudo iptables -t filter -A {chain} {source} {destination} {protocol} {ports_cmd} {action}"
+                rules.append(rule_cmd)
+        else:
+            rule_cmd = f"sudo iptables -t filter -A {chain} {source} {destination} {protocol} {action}"
+            rules.append(rule_cmd)
+
+        return rules
+
+    def extract_filter_rules_from_file(self, file_name, chain):
+
+        # BUG Verificar as portas e mudar o arquivo para inglês
+        rules_list = []
+        lines_list = []
 
         with open(file_name, 'r') as file:
             for line_num, line in enumerate(file.readlines()):
                 # Ignora as linhas de comentário
-                if line.startswith('#'):
+                if line.startswith('#') or  line.startswith('\n'):
                     continue
+
+                source = self.get_rule_parameters(line, 'sourcer')
+                destination = self.get_rule_parameters(line, 'destination')
+                protocol = self.get_rule_parameters(line, 'protocol')
+                action = self.get_rule_parameters(line, 'action')
+                ports = self.get_rule_parameters(line, 'ports')
+
+                rules = self.create_rules(
+                    chain, source, destination, protocol, ports, action)
                 
-                
-                
+                for rule in rules:
+                    rules_list.append(rule)
+                    lines_list.append(line_num+1)
 
-            # Extrai os parâmetros da regra de firewall a partir da linha de configuração
-                source_address = re.search(r'sourcer=([^\s]+)', line)
-                destination_address = re.search(r'destination=([^\s]+)', line)
-                protocol = re.search(r'protocol=([^\s]+)', line)
-                rule_action = re.search(r'action=([^\s]+)', line)
-                port_list = re.search(r'ports=([^\s]+)', line)
-                
-                
-                # |logging.debug('Extração primário s: {} d: {} p:{} ports: {} action {}'.format(source_address,destination_address,protocol,port_list,rule_action))
-       
-
-                if not (source_address or destination_address or protocol or port_list):
-                    continue
-            # Cria o comando da regra de firewall com base nos parâmetros extraídos
-                if source_address and source_address.group(1) != '*':
-                    source = f'-s {source_address.group(1)}'
-                else:
-                    source = ''
-
-                if destination_address and destination_address.group(1) != '*':
-                    destination = f'-d {destination_address.group(1)}'
-                else:
-                    destination = ''
-
-                if protocol and protocol.group(1) != '*':
-                    protocol = f'-p {protocol.group(1)}'
-                else:
-                    protocol = ''
-
-                if rule_action and rule_action.group(1) != '*':
-                    action = f'-j {rule_action.group(1)}'
-                else:
-                    action = '-j ACCEPT'
-
-                if port_list:
-                    ports = self.split_port_10(port_list.group(1))
-
-                    for port_group in ports:
-                        if port_group and port_group != '*':
-                            ports_cmd = f'-m multiport --dport {port_group}'
-                            rule_cmd = f"sudo iptables -t filter -A {chain} {source} {destination} {protocol} {ports_cmd} {action}"
-                            rules.append(rule_cmd)
-                            lines.append(line_num)
-                else:
-                    rule_cmd = f"sudo iptables -t filter -A {chain} {source} {destination} {protocol} {action}"
-                    rules.append(rule_cmd)
-                    lines.append(line_num)
-
-        return lines, rules
+        print(lines_list,rules_list)
+        time.sleep(5)
+        return lines_list, rules_list
 
     def new_method(self):
         logging.exception
@@ -290,7 +288,7 @@ class Firewall_Handler:
         return changed_files
 
     def reload_services_rules(self):
-     
+
         # recupera todos os arquivos que foram alterados desde de a ultima execussão do script
         modified_files = self.get_changed_files(self.service_dir)
         # remove regras relacioandas a arquivos deletados
@@ -319,12 +317,10 @@ class Firewall_Handler:
                     self.run_command_no_out(f'touch {file}')
                     for erro in (erros):
                         logging.error(erro)
-                        
+
                 else:
-                    logging.info("Regras do Serviço {} recarregadas com  sucesso!".format(nome))
-
-        
-
+                    logging.info(
+                        "Regras do Serviço {} recarregadas com  sucesso!".format(nome))
 
     # [ ]: Criar a função para recarregar as regras
 
