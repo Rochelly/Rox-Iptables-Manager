@@ -17,8 +17,7 @@ class Firewall_Handler:
         self.net_rules_dir = config_file["paths_dir"]["net_rules_path"]
         logging.basicConfig(filename=self.log_file, level=logging.DEBUG)
 
-    # so commands functions
-
+    # Terminal commands 
     def run_command(self, command):
         print('')
         print('')
@@ -77,7 +76,7 @@ class Firewall_Handler:
         self.run_command_no_out(commandF)
         self.run_command_no_out(commandX)
 
-    def create_chain_destination(self, chain, ip):
+    def create_chain_destination_in_forward(self, chain, ip):
 
         self.delete_chain(chain)
         command = "sudo iptables -N "+chain
@@ -85,7 +84,7 @@ class Firewall_Handler:
         referenceChain = "sudo iptables -t filter -I FORWARD -d "+ip+" -j "+chain
         self.run_command(referenceChain)
 
-    def create_chain_soucer(self, chain, ip):
+    def create_chain_soucer_in_forward(self, chain, ip):
         self.delete_chain(chain)
         command = "sudo iptables -N "+chain
         self.run_command(command)
@@ -312,7 +311,7 @@ class Firewall_Handler:
                     # se tiver algum problema,  atualiza a data de modificação do arquivo para que ele seja carregado novamnte
                     self.run_command_no_out(f'touch {file}')
                     continue
-                self.create_chain_destination(nome, ip)
+                self.create_chain_destination_in_forward(nome, ip)
                 erros = self.aply_rules_from_file(file, nome)
                 if erros:
                     logging.debug(f'Erros encontrados no serviço:{nome}')
@@ -325,6 +324,9 @@ class Firewall_Handler:
                         "Regras do Serviço {} recarregadas com  sucesso!".format(nome))
 
     #  Main menu functions
+
+    def reload_subnet_rules(self):
+        pass
 
     def realod_all_rules(sefl):
         pass
