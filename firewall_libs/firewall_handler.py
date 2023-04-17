@@ -5,6 +5,7 @@ import os
 import datetime
 import time
 import logging
+import ipaddress
 
 
 class Firewall_Handler:
@@ -13,6 +14,7 @@ class Firewall_Handler:
         self.log_file = config_file["paths_dir"]["log_file_tmp"]
         self.last_checked_file = config_file["paths_dir"]["last_checked_file"]
         self.service_dir = config_file["paths_dir"]["service_rules_path"]
+        self.subnets_dir = config_file["paths_dir"]["subnets_rules_path"]
         self.input_file_rules = config_file["paths_dir"]["input_file_rules"]
         self.net_rules_dir = config_file["paths_dir"]["net_rules_path"]
         logging.basicConfig(filename=self.log_file, level=logging.DEBUG)
@@ -288,6 +290,16 @@ class Firewall_Handler:
         # Retorna a lista de arquivos modificados
         return changed_files
 
+
+
+    def is_valid_ip(self,ip_address):
+        try:
+            ipaddress.IPv4Address(ip_address)
+            return True
+        except ipaddress.AddressValueError:
+            return False
+
+
     # services funcitions
     def reload_services_rules(self):
 
@@ -303,25 +315,26 @@ class Firewall_Handler:
             for file in modified_files:
                 file = self.service_dir+file
                 # TODO Alterar o arquivo para inglês
-                nome = self.get_in_file(file, 'NAME')
-                ip = self.get_in_file(file, 'IP')
-                if (not ip) or (not nome):   # checa  se o arquivo tem o IP e nome da chain para continuar
+                chain_name = self.get_in_file(file, 'NAME')
+                ip_service = self.get_in_file(file, 'IP')
+                 
+                if (not ip_service) or (not chain_name):   # checa  se o arquivo tem o IP e nome da chain para continuar
                     logging.error(
                         f'O arquivo {file} não esta configurado corretamente')
-                    # se tiver algum problema,  atualiza a data de modificação do arquivo para que ele seja carregado novamnte
+                    # se tiver algum problema,  atualiza a data de modificação do arquivo para que ele seja carregado novamente
                     self.run_command_no_out(f'touch {file}')
                     continue
-                self.create_chain_destination_in_forward(nome, ip)
-                erros = self.aply_rules_from_file(file, nome)
+                self.create_chain_destination_in_forward(chain_name, ip_service)
+                erros = self.aply_rules_from_file(file, chain_name)
                 if erros:
-                    logging.debug(f'Erros encontrados no serviço:{nome}')
+                    logging.debug(f'Erros encontrados no serviço:{chain_name}')
                     self.run_command_no_out(f'touch {file}')
                     for erro in (erros):
                         logging.error(erro)
 
                 else:
                     logging.info(
-                        "Regras do Serviço {} recarregadas com  sucesso!".format(nome))
+                        "Regras do Serviço {} recarregadas com  sucesso!".format(chain_name))
 
     #  Main menu functions
 

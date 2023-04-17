@@ -1,0 +1,28 @@
+NAME=SUBNET01
+NET=10.3.38.0/24
+
+
+#IP ou  Rede          PORTAS separadas por virgula    Protocolo=tcp,udp              Regra=ACCEPT,DROP,REJECT    descrição
+sourcer=10.101.0.222  destination=10.0.101.7  ports=2,23,25,30,232,23,25,30,232,23,25,30,232,23,25,30,232,23,25,30,232,23,25,30,23         protocol=udp        action=DROP      description="Teste"   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
