@@ -86,11 +86,7 @@ class Firewall_Handler:
         referenceChain = "sudo iptables -t filter -I FORWARD -d "+ip+" -j "+chain
         self.run_command(referenceChain)
 
-<<<<<<< HEAD
-    def create_chain_source(self, chain, ip):
-=======
     def create_chain_soucer_in_forward(self, chain, ip):
->>>>>>> 726dd04365b0bb72b32193b74b53aaecb5d8e666
         self.delete_chain(chain)
         command = "sudo iptables -N "+chain
         self.run_command(command)
@@ -131,7 +127,7 @@ class Firewall_Handler:
             return False
 
     def create_rules(self, chain, source, destination, protocol, ports, action):
-        # retorna uma lista de regras  a partir uma linha extraida do arquivo
+        # retorna uma lista de regras  a partir uma linha extraída do arquivo
         rules = []
 
         if not (source or destination or protocol or ports):
@@ -181,7 +177,7 @@ class Firewall_Handler:
                 if line.startswith('#') or line.startswith('\n'):
                     continue
 
-                source = self.get_rule_parameters(line, 'sourcer')
+                source = self.get_rule_parameters(line, 'source')
                 destination = self.get_rule_parameters(line, 'destination')
                 protocol = self.get_rule_parameters(line, 'protocol')
                 action = self.get_rule_parameters(line, 'action')
