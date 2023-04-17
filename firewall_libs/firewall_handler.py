@@ -3,6 +3,9 @@ import subprocess
 import re
 import os
 import datetime
+import time
+import logging
+import ipaddress
 
 
 class Firewall_Handler:
@@ -11,12 +14,17 @@ class Firewall_Handler:
         self.log_file = config_file["paths_dir"]["log_file_tmp"]
         self.last_checked_file = config_file["paths_dir"]["last_checked_file"]
         self.service_dir = config_file["paths_dir"]["service_rules_path"]
+        self.subnets_dir = config_file["paths_dir"]["subnets_rules_path"]
         self.input_file_rules = config_file["paths_dir"]["input_file_rules"]
         self.net_rules_dir = config_file["paths_dir"]["net_rules_path"]
+        logging.basicConfig(filename=self.log_file, level=logging.DEBUG)
 
-    pass
-
+    # Terminal commands 
     def run_command(self, command):
+        print('')
+        print('')
+        print('')
+        print('')
         try:
             args = command.split()
             completed_process = subprocess.run(
@@ -26,6 +34,10 @@ class Firewall_Handler:
             return False,  error.stderr
 
     def run_command_no_out(self, command):
+        print('')
+        print('')
+        print('')
+        print('')
         try:
             args = command.split()
             subprocess.run(args, check=True,
@@ -33,6 +45,8 @@ class Firewall_Handler:
             return True
         except subprocess.CalledProcessError as e:
             return False
+
+    # chains handler
 
     def check_chain_exist(self, chain):
         command = "sudo iptables -nL "+chain
@@ -64,7 +78,7 @@ class Firewall_Handler:
         self.run_command_no_out(commandF)
         self.run_command_no_out(commandX)
 
-    def create_chain_destination(self, chain, ip):
+    def create_chain_destination_in_forward(self, chain, ip):
 
         self.delete_chain(chain)
         command = "sudo iptables -N "+chain
@@ -72,12 +86,25 @@ class Firewall_Handler:
         referenceChain = "sudo iptables -t filter -I FORWARD -d "+ip+" -j "+chain
         self.run_command(referenceChain)
 
+<<<<<<< HEAD
     def create_chain_source(self, chain, ip):
+=======
+    def create_chain_soucer_in_forward(self, chain, ip):
+>>>>>>> 726dd04365b0bb72b32193b74b53aaecb5d8e666
         self.delete_chain(chain)
         command = "sudo iptables -N "+chain
         self.run_command(command)
         referenceChain = "sudo iptables -t filter -I FORWARD -s "+ip+" -j "+chain
         self.run_command(referenceChain)
+
+    def remove_Chain_Deleted(self, dir_Path):
+        listDeletedFiles = self.check_deleted_files(dir_Path)
+        for fileName in listDeletedFiles:
+            name = fileName.split('=')
+            chain = name[1].strip()
+            self.delete_chain(chain)
+
+    # rules create
 
     def split_port_10(self, ports):
         substrings = ports.split(",")
@@ -85,6 +112,7 @@ class Firewall_Handler:
         temp = []
 
         for s in substrings:
+
             temp.append(s)
             if len(temp) == 10:
                 sub_lists.append(",".join(temp))
@@ -94,62 +122,81 @@ class Firewall_Handler:
             sub_lists.append(",".join(temp))
         return sub_lists
 
+    def get_rule_parameters(self, line, parameter):
+        value = re.search(rf'{parameter}=([^\s]+)', line)
+
+        if value:
+            return value.group(1)
+        else:
+            return False
+
+    def create_rules(self, chain, source, destination, protocol, ports, action):
+        # retorna uma lista de regras  a partir uma linha extraida do arquivo
+        rules = []
+
+        if not (source or destination or protocol or ports):
+            return rules
+
+        if source and source != '*':
+            source = f' -s {source} '
+        else:
+            source = ''
+
+        if destination and destination != '*':
+            destination = f' -d {destination} '
+        else:
+            destination = ''
+
+        if protocol and protocol != '*':
+            protocol = f' -p {protocol} '
+        else:
+            protocol = ''
+
+        if action and action != '*':
+            action = f'-j {action}'
+        else:
+            action = ' -j ACCEPT'
+
+        if ports and ports != '*':
+            ports_list = self.split_port_10(ports)
+
+            for port_group in ports_list:
+                ports_cmd = f'-m multiport --dport {port_group}'
+                rule_cmd = f"sudo iptables -t filter -A {chain} {source} {destination} {protocol} {ports_cmd} {action}"
+                rules.append(rule_cmd)
+        else:
+            rule_cmd = f"sudo iptables -t filter -A {chain} {source} {destination} {protocol} {action}"
+            rules.append(rule_cmd)
+
+        return rules
+
     def extract_filter_rules_from_file(self, file_name, chain):
 
-        rules = []
-        lines = []
+        rules_list = []
+        lines_list = []
 
         with open(file_name, 'r') as file:
             for line_num, line in enumerate(file.readlines()):
                 # Ignora as linhas de comentário
-                if line.startswith('#'):
+                if line.startswith('#') or line.startswith('\n'):
                     continue
 
-            # Extrai os parâmetros da regra de firewall a partir da linha de configuração
-                source_address = re.search(r'ORIGEM=([^\s]+)', line)
-                destination_address = re.search(r'DESTINO=([^\s]+)', line)
-                protocol = re.search(r'PROTOCOLO=([^\s]+)', line)
-                rule_action = re.search(r'REGRA=([^\s]+)', line)
-                port_list = re.search(r'PORTAS=([^\s]+)', line)
+                source = self.get_rule_parameters(line, 'sourcer')
+                destination = self.get_rule_parameters(line, 'destination')
+                protocol = self.get_rule_parameters(line, 'protocol')
+                action = self.get_rule_parameters(line, 'action')
+                ports = self.get_rule_parameters(line, 'ports')
 
-                if not (source_address or destination_address or protocol or port_list):
-                    continue
-            # Cria o comando da regra de firewall com base nos parâmetros extraídos
-                if source_address and source_address.group(1) != '*':
-                    source = f'-s {source_address.group(1)}'
-                else:
-                    source = ''
+                rules = self.create_rules(
+                    chain, source, destination, protocol, ports, action)
 
-                if destination_address and destination_address.group(1) != '*':
-                    destination = f'-d {destination_address.group(1)}'
-                else:
-                    destination = ''
+                for rule in rules:
+                    rules_list.append(rule)
+                    lines_list.append(line_num+1)
 
-                if protocol and protocol.group(1) != '*':
-                    protocol = f'-p {protocol.group(1)}'
-                else:
-                    protocol = ''
-
-                if rule_action and rule_action.group(1) != '*':
-                    action = f'-j {rule_action.group(1)}'
-                else:
-                    action = '-j ACCEPT'
-
-                if port_list:
-                    ports = self.split_port_10(port_list.group(1))
-
-                    for port_group in ports:
-                        if port_group and port_group != '*':
-                            ports_cmd = f'-m multiport --dport {port_group}'
-                            rule_cmd = f"sudo iptables -t filter -A {chain} {source} {destination} {protocol} {ports_cmd} {action}"
-                            rules.append(rule_cmd)
-                            lines.append(line_num)
-                else:
-                    rule_cmd = f"sudo iptables -t filter -A {chain} {source} {destination} {protocol} {action}"
-                    rules.append(rule_cmd)
-                    lines.append(line_num)
-
-        return lines, rules
+        print(lines_list, rules_list)
+        time.sleep(5)
+        return lines_list, rules_list
 
     def aply_rules_from_file(self, file_name, chain):
         lines, rules = self.extract_filter_rules_from_file(file_name, chain)
@@ -160,6 +207,8 @@ class Firewall_Handler:
             if not sucesso:
                 erros.append(f"Erro na linha:  {line + 1} do arquivo")
         return erros
+
+    # file handler
 
     def get_in_file(self, fileName, key):
         with open(fileName) as arquivo:
@@ -213,16 +262,7 @@ class Firewall_Handler:
             self.create_file_list(dir_Path, oldFileName)
         return listDeletedFiles
 
-    def remove_Chain_Deleted(self, dir_Path):
-        listDeletedFiles = self.check_deleted_files(dir_Path)
-        for fileName in listDeletedFiles:
-            name = fileName.split('=')
-            chain = name[1].strip()
-            self.delete_chain(chain)
-
     def get_changed_files(self, dir_path):
-
-        # Cria um arquivo auxiliar para armazenar a data da última verificação
 
         # Obtém a data da última verificação a partir do arquivo auxiliar ou usa uma data antiga se não existir
         if os.path.exists(self.last_checked_file):
@@ -254,59 +294,58 @@ class Firewall_Handler:
         # Retorna a lista de arquivos modificados
         return changed_files
 
-    def reload_dir_rules_services(self, dir_Path):
 
-        errosMsg = []
-        sucessMsg = []
-        alertMsg = []
-        sucessReload = []
-        modified_files = self.get_changed_files(dir_Path)
 
-        print(modified_files)
+    def is_valid_ip(self,ip_address):
+        try:
+            ipaddress.IPv4Address(ip_address)
+            return True
+        except ipaddress.AddressValueError:
+            return False
 
-        self.remove_Chain_Deleted(dir_Path)
+
+    # services funcitions
+    def reload_services_rules(self):
+
+        # recupera todos os arquivos que foram alterados desde de a ultima execussão do script
+        modified_files = self.get_changed_files(self.service_dir)
+        # remove regras relacioandas a arquivos deletados
+        self.remove_Chain_Deleted(self.service_dir)
 
         if len(modified_files) == 0:
-            print("Não Existe arquivos modificados")
+            logging.info(
+                'Nenhum arquivo foi modificado desde a ultima verificação')
         else:
-            print("Existe aquivos modificados")
-
             for file in modified_files:
-                file = dir_Path+file
-                nome = self.get_in_file(file, 'NAME')
-                ip = self.get_in_file(file, 'IP')
-                if (not ip) or (not nome):
-                    errosMsg.append(
+                file = self.service_dir+file
+                # TODO Alterar o arquivo para inglês
+                chain_name = self.get_in_file(file, 'NAME')
+                ip_service = self.get_in_file(file, 'IP')
+                 
+                if (not ip_service) or (not chain_name):   # checa  se o arquivo tem o IP e nome da chain para continuar
+                    logging.error(
                         f'O arquivo {file} não esta configurado corretamente')
-                    # time.sleep(5)
-                   # (f'touch {file}')
+                    # se tiver algum problema,  atualiza a data de modificação do arquivo para que ele seja carregado novamente
+                    self.run_command_no_out(f'touch {file}')
                     continue
-                reloadMsg = f"{nome} - {ip}"
-                sucessReload.append(reloadMsg)
-                self.create_chain_destination(nome, ip)
-                erros = self.aply_rules_from_file(file, nome)
+                self.create_chain_destination_in_forward(chain_name, ip_service)
+                erros = self.aply_rules_from_file(file, chain_name)
                 if erros:
-                    msg2 = f'Erros encontrados no serviço:{nome}'
-                    # time.sleep(5)
-                    # runCommand(f'touch {file}')
-                    errosMsg.append(msg2)
+                    logging.debug(f'Erros encontrados no serviço:{chain_name}')
+                    self.run_command_no_out(f'touch {file}')
                     for erro in (erros):
-                        errosMsg.append(erro)
+                        logging.error(erro)
+
                 else:
-                    sucessMsg = ["Nenhum erro encontrado, regras recarregadas com sucesso!",
-                                 "Serviços Modificados:"]+sucessReload
+                    logging.info(
+                        "Regras do Serviço {} recarregadas com  sucesso!".format(chain_name))
 
-                nome = ''
-                ip = ''
+    #  Main menu functions
 
-        allMsg = {'alert': alertMsg, 'error': errosMsg, 'sucess': sucessMsg}
-        print(allMsg)
-        return allMsg
+    def reload_subnet_rules(self):
+        pass
 
-    # [ ]: Criar a função para recarregar as regras
-
-    def reloadRules(self):
-
+    def realod_all_rules(sefl):
         pass
 
     def list_modified_services(self):
@@ -317,3 +356,6 @@ class Firewall_Handler:
 
     def create_new_sub_net(self):
         pass
+
+    def quit():
+        quit

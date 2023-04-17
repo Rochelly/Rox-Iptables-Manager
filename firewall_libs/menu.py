@@ -48,7 +48,6 @@ class Menu:
         self.screen.border(0)
         line = 2
         for msg in self.header_msg:
-            print(msg)
             self.screen.addstr(line, 10, msg, 2)
             line += 1
 
@@ -107,6 +106,9 @@ class Menu:
         return
 
     def _draw_status_area(self):
+        
+        self.screen.clear()
+        self._draw_header()
         status_are_line = self.status_area_position
 
         with open(self.log_file, 'r+') as file:
@@ -128,13 +130,15 @@ class Menu:
                         if level == 'DEBUG':
                             self.screen.addstr(
                                 status_are_line, 10, message, curses.color_pair(5))
+            
                 else:
                     msg = f"O tamanho maximo do terminal atigindo ({self.max_row} X {self.max_col})! - Amplie a janela para ver mais "
                   #  self.screen.addstr(10, 50,
                     #  msg, curses.color_pair(4))
-
+            
                     break
-           # file.truncate(0)
+        with open(self.log_file, "w") as arquivo:
+            arquivo.write("")
 
     def show(self):
         curses.wrapper(self._run)
