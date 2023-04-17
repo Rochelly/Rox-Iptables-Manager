@@ -17,6 +17,8 @@ class Firewall_Handler:
         self.net_rules_dir = config_file["paths_dir"]["net_rules_path"]
         logging.basicConfig(filename=self.log_file, level=logging.DEBUG)
 
+    # so commands functions
+
     def run_command(self, command):
         print('')
         print('')
@@ -42,6 +44,8 @@ class Firewall_Handler:
             return True
         except subprocess.CalledProcessError as e:
             return False
+
+    # chains handler
 
     def check_chain_exist(self, chain):
         command = "sudo iptables -nL "+chain
@@ -88,6 +92,15 @@ class Firewall_Handler:
         referenceChain = "sudo iptables -t filter -I FORWARD -s "+ip+" -j "+chain
         self.run_command(referenceChain)
 
+    def remove_Chain_Deleted(self, dir_Path):
+        listDeletedFiles = self.check_deleted_files(dir_Path)
+        for fileName in listDeletedFiles:
+            name = fileName.split('=')
+            chain = name[1].strip()
+            self.delete_chain(chain)
+
+    # rules create
+
     def split_port_10(self, ports):
         substrings = ports.split(",")
         sublists = []
@@ -118,8 +131,6 @@ class Firewall_Handler:
 
         if not (source or destination or protocol or ports):
             return rules
-
-        
 
         if source and source != '*':
             source = f' -s {source} '
@@ -156,14 +167,13 @@ class Firewall_Handler:
 
     def extract_filter_rules_from_file(self, file_name, chain):
 
-        # BUG Verificar as portas e mudar o arquivo para inglês
         rules_list = []
         lines_list = []
 
         with open(file_name, 'r') as file:
             for line_num, line in enumerate(file.readlines()):
                 # Ignora as linhas de comentário
-                if line.startswith('#') or  line.startswith('\n'):
+                if line.startswith('#') or line.startswith('\n'):
                     continue
 
                 source = self.get_rule_parameters(line, 'sourcer')
@@ -174,17 +184,14 @@ class Firewall_Handler:
 
                 rules = self.create_rules(
                     chain, source, destination, protocol, ports, action)
-                
+
                 for rule in rules:
                     rules_list.append(rule)
                     lines_list.append(line_num+1)
 
-        print(lines_list,rules_list)
+        print(lines_list, rules_list)
         time.sleep(5)
         return lines_list, rules_list
-
-    def new_method(self):
-        logging.exception
 
     def aply_rules_from_file(self, file_name, chain):
         lines, rules = self.extract_filter_rules_from_file(file_name, chain)
@@ -195,6 +202,8 @@ class Firewall_Handler:
             if not sucesso:
                 erros.append(f"Erro na linha:  {line + 1} do arquivo")
         return erros
+
+    # file handler
 
     def get_in_file(self, fileName, key):
         with open(fileName) as arquivo:
@@ -248,13 +257,6 @@ class Firewall_Handler:
             self.create_file_list(dir_Path, oldFileName)
         return listDeletedFiles
 
-    def remove_Chain_Deleted(self, dir_Path):
-        listDeletedFiles = self.check_deleted_files(dir_Path)
-        for fileName in listDeletedFiles:
-            name = fileName.split('=')
-            chain = name[1].strip()
-            self.delete_chain(chain)
-
     def get_changed_files(self, dir_path):
 
         # Obtém a data da última verificação a partir do arquivo auxiliar ou usa uma data antiga se não existir
@@ -287,6 +289,7 @@ class Firewall_Handler:
         # Retorna a lista de arquivos modificados
         return changed_files
 
+    # services funcitions
     def reload_services_rules(self):
 
         # recupera todos os arquivos que foram alterados desde de a ultima execussão do script
@@ -309,7 +312,6 @@ class Firewall_Handler:
                     # se tiver algum problema,  atualiza a data de modificação do arquivo para que ele seja carregado novamnte
                     self.run_command_no_out(f'touch {file}')
                     continue
-       #         logging.info(f"{nome} - {ip}")
                 self.create_chain_destination(nome, ip)
                 erros = self.aply_rules_from_file(file, nome)
                 if erros:
@@ -322,9 +324,7 @@ class Firewall_Handler:
                     logging.info(
                         "Regras do Serviço {} recarregadas com  sucesso!".format(nome))
 
-    # [ ]: Criar a função para recarregar as regras
-
-        pass
+    #  Main menu functions
 
     def realod_all_rules(sefl):
         pass
