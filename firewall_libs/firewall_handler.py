@@ -72,7 +72,7 @@ class Firewall_Handler:
         referenceChain = "sudo iptables -t filter -I FORWARD -d "+ip+" -j "+chain
         self.run_command(referenceChain)
 
-    def create_chain_soucer(self, chain, ip):
+    def create_chain_source(self, chain, ip):
         self.delete_chain(chain)
         command = "sudo iptables -N "+chain
         self.run_command(command)
@@ -81,18 +81,18 @@ class Firewall_Handler:
 
     def split_port_10(self, ports):
         substrings = ports.split(",")
-        sublists = []
+        sub_lists = []
         temp = []
 
         for s in substrings:
             temp.append(s)
             if len(temp) == 10:
-                sublists.append(",".join(temp))
+                sub_lists.append(",".join(temp))
                 temp = []
 
         if len(temp) > 0:
-            sublists.append(",".join(temp))
-        return sublists
+            sub_lists.append(",".join(temp))
+        return sub_lists
 
     def extract_filter_rules_from_file(self, file_name, chain):
 
