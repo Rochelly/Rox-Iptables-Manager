@@ -19,7 +19,7 @@ class Firewall_Handler:
         self.net_rules_dir = config_file["paths_dir"]["net_rules_path"]
         logging.basicConfig(filename=self.log_file, level=logging.DEBUG)
 
-    # Terminal commands 
+    # Terminal commands
     def run_command(self, command):
         print('')
         print('')
@@ -290,17 +290,15 @@ class Firewall_Handler:
         # Retorna a lista de arquivos modificados
         return changed_files
 
-
-
-    def is_valid_ip(self,ip_address):
+    def is_valid_ip(self, ip_address):
         try:
             ipaddress.IPv4Address(ip_address)
             return True
         except ipaddress.AddressValueError:
             return False
 
-
     # services funcitions
+
     def reload_services_rules(self):
 
         # recupera todos os arquivos que foram alterados desde de a ultima execussão do script
@@ -317,14 +315,16 @@ class Firewall_Handler:
                 # TODO Alterar o arquivo para inglês
                 chain_name = self.get_in_file(file, 'NAME')
                 ip_service = self.get_in_file(file, 'IP')
-                 
-                if (not ip_service) or (not chain_name):   # checa  se o arquivo tem o IP e nome da chain para continuar
+
+                # checa  se o arquivo tem o IP e nome da chain para continuar
+                if (not ip_service) or (not chain_name):
                     logging.error(
                         f'O arquivo {file} não esta configurado corretamente')
                     # se tiver algum problema,  atualiza a data de modificação do arquivo para que ele seja carregado novamente
                     self.run_command_no_out(f'touch {file}')
                     continue
-                self.create_chain_destination_in_forward(chain_name, ip_service)
+                self.create_chain_destination_in_forward(
+                    chain_name, ip_service)
                 erros = self.aply_rules_from_file(file, chain_name)
                 if erros:
                     logging.debug(f'Erros encontrados no serviço:{chain_name}')
