@@ -10,7 +10,12 @@ import ipaddress
 
 class Firewall_Handler:
 
-    def __init__(self, config_file) -> None:
+    def __init__(self, config_file):
+        """Initializes a new instance of the Firewall_Handler.
+
+        Args:
+            config_file (dict): A dictionary containing the configuration file.
+        """
         self.log_file = config_file["paths_dir"]["log_file_tmp"]
         self.last_checked_file = config_file["paths_dir"]["last_checked_file"]
         self.service_dir = config_file["paths_dir"]["service_rules_path"]
@@ -19,8 +24,17 @@ class Firewall_Handler:
         self.net_rules_dir = config_file["paths_dir"]["net_rules_path"]
         logging.basicConfig(filename=self.log_file, level=logging.DEBUG)
 
-    # Terminal commands
+    # Terminal commands 
     def run_command(self, command):
+        """Runs a terminal command and returns the output.
+
+        Args:
+            command (str): The command to run.
+
+        Returns:
+            A tuple containing a boolean indicating whether the command ran
+            successfully and the output of the command.
+        """
         print('')
         print('')
         print('')
@@ -31,9 +45,17 @@ class Firewall_Handler:
                 args, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             return True, completed_process.stdout
         except subprocess.CalledProcessError as error:
-            return False,  error.stderr
+            return False, error.stderr
 
     def run_command_no_out(self, command):
+        """Runs a terminal command without returning any output.
+
+        Args:
+            command (str): The command to run.
+
+        Returns:
+            A boolean indicating whether the command ran successfully.
+        """
         print('')
         print('')
         print('')
@@ -45,14 +67,29 @@ class Firewall_Handler:
             return True
         except subprocess.CalledProcessError as e:
             return False
-
     # chains handler
-
     def check_chain_exist(self, chain):
-        command = "sudo iptables -nL "+chain
-        return self.run_command_no_out(command)
+            """Checks if a chain exists in iptables.
+
+            Args:
+                chain (str): The name of the chain to check.
+
+            Returns:
+                A boolean indicating whether the chain exists.
+            """
+            command = "sudo iptables -nL "+chain
+            return self.run_command_no_out(command)
 
     def check_forward_reference(self, target):
+        """Checks if a target is referenced in the FORWARD chain of iptables.
+
+        Args:
+            target (str): The target to check.
+
+        Returns:
+            If the target is found, the line number of the rule referencing it.
+            Otherwise, returns False.
+        """
         command = "sudo iptables -nL FORWARD --line-numbers"
         success, output = self.run_command(command)
         if not success:
@@ -65,11 +102,21 @@ class Firewall_Handler:
         return False
 
     def delete_forward_reference(self, target):
+        """Deletes all references to a target in the FORWARD chain of iptables.
+
+        Args:
+            target (str): The target to delete references to.
+        """
         while self.check_forward_reference(target):
             subprocess.run(['sudo', 'iptables', '-D', 'FORWARD',
                            self.check_forward_reference(target)])
 
     def delete_chain(self, chain):
+        """Deletes a chain from iptables.
+
+        Args:
+            chain (str): The name of the chain to delete.
+        """
         if not chain:
             return
         self.delete_forward_reference(chain)
@@ -77,16 +124,41 @@ class Firewall_Handler:
         commandX = "sudo iptables -X "+chain
         self.run_command_no_out(commandF)
         self.run_command_no_out(commandX)
-
+       
     def create_chain_destination_in_forward(self, chain, ip):
+        """Creates a new chain in iptables that filters by destination IP address.
 
+        Deletes any existing chain with the given name and creates a new one with the
+        same name. Adds a rule to the FORWARD chain that references the new chain and
+        filters by destination IP address.
+
+        Args:
+            chain (str): The name of the new chain to create.
+            ip (str): The IP address to filter by.
+
+        Returns:
+            None.
+        """
         self.delete_chain(chain)
         command = "sudo iptables -N "+chain
         self.run_command(command)
         referenceChain = "sudo iptables -t filter -I FORWARD -d "+ip+" -j "+chain
         self.run_command(referenceChain)
 
-    def create_chain_soucer_in_forward(self, chain, ip):
+    def create_chain_source_in_forward(self, chain, ip):
+        """Creates a new chain in iptables that filters by source IP address.
+
+        Deletes any existing chain with the given name and creates a new one with the
+        same name. Adds a rule to the FORWARD chain that references the new chain and
+        filters by source IP address.
+
+        Args:
+            chain (str): The name of the new chain to create.
+            ip (str): The IP address to filter by.
+
+        Returns:
+            None.
+        """
         self.delete_chain(chain)
         command = "sudo iptables -N "+chain
         self.run_command(command)
@@ -94,6 +166,18 @@ class Firewall_Handler:
         self.run_command(referenceChain)
 
     def remove_Chain_Deleted(self, dir_Path):
+        """Deletes any chains in iptables that were created by a deleted file.
+
+        Gets a list of all files in the specified directory that have been deleted
+        since the last check. For each file, extracts the name of the chain that was
+        created by the file and deletes the chain.
+
+        Args:
+            dir_Path (str): The path to the directory to check for deleted files.
+
+        Returns:
+            None.
+        """
         listDeletedFiles = self.check_deleted_files(dir_Path)
         for fileName in listDeletedFiles:
             name = fileName.split('=')
@@ -194,7 +278,7 @@ class Firewall_Handler:
         time.sleep(5)
         return lines_list, rules_list
 
-    def aply_rules_from_file(self, file_name, chain):
+    def apply_rules_from_file(self, file_name, chain):
         lines, rules = self.extract_filter_rules_from_file(file_name, chain)
         line_rules = list(zip(lines, rules))
         erros = []
@@ -297,18 +381,18 @@ class Firewall_Handler:
         except ipaddress.AddressValueError:
             return False
 
-    # services funcitions
 
+    # services funcitions
     def reload_services_rules(self):
 
-        # recupera todos os arquivos que foram alterados desde de a ultima execussão do script
+        # recupera todos os arquivos que foram alterados desde de a ultima execução do script
         modified_files = self.get_changed_files(self.service_dir)
-        # remove regras relacioandas a arquivos deletados
+        # remove regras relacionadas a arquivos deletados
         self.remove_Chain_Deleted(self.service_dir)
 
         if len(modified_files) == 0:
             logging.info(
-                'Nenhum arquivo foi modificado desde a ultima verificação')
+                'Nenhum arquivo serviço foi modificado desde a ultima verificação')
         else:
             for file in modified_files:
                 file = self.service_dir+file
@@ -323,8 +407,7 @@ class Firewall_Handler:
                     # se tiver algum problema,  atualiza a data de modificação do arquivo para que ele seja carregado novamente
                     self.run_command_no_out(f'touch {file}')
                     continue
-                self.create_chain_destination_in_forward(
-                    chain_name, ip_service)
+                self.create_chain_destination_in_forward(chain_name, ip_service)
                 erros = self.aply_rules_from_file(file, chain_name)
                 if erros:
                     logging.debug(f'Erros encontrados no serviço:{chain_name}')
@@ -339,9 +422,42 @@ class Firewall_Handler:
     #  Main menu functions
 
     def reload_subnet_rules(self):
-        pass
+        # recupera todos os arquivos que foram alterados desde de a ultima execução do script
+        modified_files = self.get_changed_files(self.subnets_dir)
 
-    def realod_all_rules(sefl):
+        # remove regras relacionadas a arquivos deletados
+        self.remove_Chain_Deleted(self.subnets_dir)
+        time.sleep(5)
+        if len(modified_files) == 0:
+            logging.info(
+                'Nenhum arquivo de sub-rede foi modificado desde a ultima verificação')
+        else:
+            for file in modified_files:
+                file = self.subnets_dir+file
+
+                chain_name = self.get_in_file(file, 'NAME')
+                subnet = self.get_in_file(file, 'NET')
+
+                # checa  se o arquivo tem o IP e nome da chain para continuar
+                if (not subnet) or (not chain_name):
+                    logging.error(
+                        f'O arquivo {file} não esta configurado corretamente')
+                    # se tiver algum problema,  atualiza a data de modificação do arquivo para que ele seja carregado novamente
+                    self.run_command_no_out(f'touch {file}')
+                    continue
+                self.create_chain_source_in_forward(chain_name, subnet)
+                erros = self.apply_rules_from_file(file, chain_name)
+                if erros:
+                    logging.debug(f'Erros encontrados na subnet:{chain_name}')
+                    self.run_command_no_out(f'touch {file}')
+                    for erro in (erros):
+                        logging.error(erro)
+
+                else:
+                    logging.info(
+                        "Regras da Sub-rede {} recarregadas com  sucesso!".format(chain_name))
+
+    def reload_all_rules(self):
         pass
 
     def list_modified_services(self):
