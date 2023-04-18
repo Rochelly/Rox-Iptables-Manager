@@ -19,7 +19,7 @@ class Firewall_Handler:
         self.net_rules_dir = config_file["paths_dir"]["net_rules_path"]
         logging.basicConfig(filename=self.log_file, level=logging.DEBUG)
 
-    # Terminal commands 
+    # Terminal commands
     def run_command(self, command):
         print('')
         print('')
@@ -86,7 +86,7 @@ class Firewall_Handler:
         referenceChain = "sudo iptables -t filter -I FORWARD -d "+ip+" -j "+chain
         self.run_command(referenceChain)
 
-    def create_chain_soucer_in_forward(self, chain, ip):
+    def create_chain_source_in_forward(self, chain, ip):
         self.delete_chain(chain)
         command = "sudo iptables -N "+chain
         self.run_command(command)
@@ -194,7 +194,7 @@ class Firewall_Handler:
         time.sleep(5)
         return lines_list, rules_list
 
-    def aply_rules_from_file(self, file_name, chain):
+    def apply_rules_from_file(self, file_name, chain):
         lines, rules = self.extract_filter_rules_from_file(file_name, chain)
         line_rules = list(zip(lines, rules))
         erros = []
@@ -290,17 +290,15 @@ class Firewall_Handler:
         # Retorna a lista de arquivos modificados
         return changed_files
 
-
-
-    def is_valid_ip(self,ip_address):
+    def is_valid_ip(self, ip_address):
         try:
             ipaddress.IPv4Address(ip_address)
             return True
         except ipaddress.AddressValueError:
             return False
 
-
     # services funcitions
+
     def reload_services_rules(self):
 
         # recupera todos os arquivos que foram alterados desde de a ultima execussão do script
@@ -310,22 +308,24 @@ class Firewall_Handler:
 
         if len(modified_files) == 0:
             logging.info(
-                'Nenhum arquivo foi modificado desde a ultima verificação')
+                'Nenhum arquivo serviço foi modificado desde a ultima verificação')
         else:
             for file in modified_files:
                 file = self.service_dir+file
                 # TODO Alterar o arquivo para inglês
                 chain_name = self.get_in_file(file, 'NAME')
                 ip_service = self.get_in_file(file, 'IP')
-                 
-                if (not ip_service) or (not chain_name):   # checa  se o arquivo tem o IP e nome da chain para continuar
+
+                # checa  se o arquivo tem o IP e nome da chain para continuar
+                if (not ip_service) or (not chain_name):
                     logging.error(
                         f'O arquivo {file} não esta configurado corretamente')
                     # se tiver algum problema,  atualiza a data de modificação do arquivo para que ele seja carregado novamente
                     self.run_command_no_out(f'touch {file}')
                     continue
-                self.create_chain_destination_in_forward(chain_name, ip_service)
-                erros = self.aply_rules_from_file(file, chain_name)
+                self.create_chain_destination_in_forward(
+                    chain_name, ip_service)
+                erros = self.apply_rules_from_file(file, chain_name)
                 if erros:
                     logging.debug(f'Erros encontrados no serviço:{chain_name}')
                     self.run_command_no_out(f'touch {file}')
@@ -339,7 +339,40 @@ class Firewall_Handler:
     #  Main menu functions
 
     def reload_subnet_rules(self):
-        pass
+        # recupera todos os arquivos que foram alterados desde de a ultima execussão do script
+        modified_files = self.get_changed_files(self.subnets_dir)
+
+        # remove regras relacionadas a arquivos deletados
+        self.remove_Chain_Deleted(self.subnets_dir)
+        time.sleep(5)
+        if len(modified_files) == 0:
+            logging.info(
+                'Nenhum arquivo de sub-rede foi modificado desde a ultima verificação')
+        else:
+            for file in modified_files:
+                file = self.subnets_dir+file
+
+                chain_name = self.get_in_file(file, 'NAME')
+                subnet = self.get_in_file(file, 'NET')
+
+                # checa  se o arquivo tem o IP e nome da chain para continuar
+                if (not subnet) or (not chain_name):
+                    logging.error(
+                        f'O arquivo {file} não esta configurado corretamente')
+                    # se tiver algum problema,  atualiza a data de modificação do arquivo para que ele seja carregado novamente
+                    self.run_command_no_out(f'touch {file}')
+                    continue
+                self.create_chain_source_in_forward(chain_name, subnet)
+                erros = self.apply_rules_from_file(file, chain_name)
+                if erros:
+                    logging.debug(f'Erros encontrados na subnet:{chain_name}')
+                    self.run_command_no_out(f'touch {file}')
+                    for erro in (erros):
+                        logging.error(erro)
+
+                else:
+                    logging.info(
+                        "Regras da Sub-rede {} recarregadas com  sucesso!".format(chain_name))
 
     def realod_all_rules(sefl):
         pass
