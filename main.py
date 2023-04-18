@@ -31,7 +31,7 @@ def main():
     functionalities_Dic = {
         "Reload Service rules": my_fw.reload_services_rules,
         "Reload Subnet rules": my_fw.reload_subnet_rules,
-        "Reload all rules": my_fw.realod_all_rules,
+        "Reload all rules": my_fw.reload_all_rules,
         "List recently modified services": my_fw.list_modified_services,
         "Create new service": my_fw.create_new_service,
         "Create new subnet": my_fw.create_new_sub_net,
