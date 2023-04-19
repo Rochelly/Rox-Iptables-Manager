@@ -484,7 +484,7 @@ class Firewall_Handler:
       # atualiza a data de modificação dos arquivos
         logging.debug(all_files)
         for file in all_files:
-            self.run_command('cat {}'.format(file))
+            self.run_command('touch {}'.format(file))
 
     def create_new_service(self):
         pass
