@@ -344,10 +344,12 @@ class Firewall_Handler:
         return listDeletedFiles
 
     def get_changed_files(self, dir_path):
+        
+        last_checked_file= os.path.join(dir_path,self.last_checked_file)
 
         # Obtém a data da última verificação a partir do arquivo auxiliar ou usa uma data antiga se não existir
-        if os.path.exists(self.last_checked_file):
-            with open(self.last_checked_file, 'r') as f:
+        if os.path.exists(last_checked_file):
+            with open(last_checked_file, 'r') as f:
                 last_checked = datetime.datetime.fromisoformat(
                     f.read().strip())
         else:
@@ -369,7 +371,7 @@ class Firewall_Handler:
                 changed_files.append(file)
 
         # Atualiza a data da última verificação no arquivo auxiliar
-        with open(self.last_checked_file, 'w') as f:
+        with open(last_checked_file, 'w') as f:
             f.write(datetime.datetime.now().isoformat())
 
         # Retorna a lista de arquivos modificados
@@ -464,19 +466,20 @@ class Firewall_Handler:
 
     def list_modified_services(self):
         logging.debug('Serviços alterados:')
-        logging.info(self.get_changed_files(self.service_dir))
-        # logging.debug('Sub-redes alteradas:')
-        # logging.info(self.subnets_dir)
+            
 
-        directories = [self.service_dir, self.subnets_dir]
+        directories = [self.subnets_dir,self.service_dir]
+
+      #  logging.debug(directories)
         files = []
         all_files = []
         for directory in directories:
             files = self.get_changed_files(directory)
-            for file in files:
-                all_files.append(directory+file)
+            logging.debug(files)
+        #     for file in files:
+        #         all_files.append(directory+file)
 
-        
+        # logging.info(all_files)
 
     def create_new_service(self):
         pass
