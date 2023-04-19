@@ -48,6 +48,8 @@ class Firewall_Handler:
             return False, error.stderr
 
     def run_command_no_out(self, command):
+
+       
         """Runs a terminal command without returning any output.
 
         Args:
@@ -344,8 +346,8 @@ class Firewall_Handler:
         return listDeletedFiles
 
     def get_changed_files(self, dir_path):
-        
-        last_checked_file= os.path.join(dir_path,self.last_checked_file)
+
+        last_checked_file = os.path.join(dir_path, self.last_checked_file)
 
         # Obtém a data da última verificação a partir do arquivo auxiliar ou usa uma data antiga se não existir
         if os.path.exists(last_checked_file):
@@ -465,21 +467,24 @@ class Firewall_Handler:
         pass
 
     def list_modified_services(self):
-        logging.debug('Serviços alterados:')
-            
+   
 
-        directories = [self.subnets_dir,self.service_dir]
+        directories = [self.subnets_dir, self.service_dir]
 
       #  logging.debug(directories)
         files = []
         all_files = []
         for directory in directories:
+            logging.debug('Arquivos alterados em {}:'.format(directory))
             files = self.get_changed_files(directory)
-            logging.debug(files)
-        #     for file in files:
-        #         all_files.append(directory+file)
+            for file in files:
+                logging.info(file)
+                all_files.append(directory+file)
 
-        # logging.info(all_files)
+      # atualiza a data de modificação dos arquivos
+        logging.debug(all_files)
+        for file in all_files:
+            self.run_command('cat {}'.format(file))
 
     def create_new_service(self):
         pass
