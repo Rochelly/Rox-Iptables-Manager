@@ -21,10 +21,10 @@ class Firewall_Handler:
         self.service_dir = config_file["paths_dir"]["service_rules_path"]
         self.subnets_dir = config_file["paths_dir"]["subnets_rules_path"]
         self.input_file_rules = config_file["paths_dir"]["input_file_rules"]
-        self.net_rules_dir = config_file["paths_dir"]["net_rules_path"]
+
         logging.basicConfig(filename=self.log_file, level=logging.DEBUG)
 
-    # Terminal commands 
+    # Terminal commands
     def run_command(self, command):
         """Runs a terminal command and returns the output.
 
@@ -68,17 +68,18 @@ class Firewall_Handler:
         except subprocess.CalledProcessError as e:
             return False
     # chains handler
+
     def check_chain_exist(self, chain):
-            """Checks if a chain exists in iptables.
+        """Checks if a chain exists in iptables.
 
-            Args:
-                chain (str): The name of the chain to check.
+        Args:
+            chain (str): The name of the chain to check.
 
-            Returns:
-                A boolean indicating whether the chain exists.
-            """
-            command = "sudo iptables -nL "+chain
-            return self.run_command_no_out(command)
+        Returns:
+            A boolean indicating whether the chain exists.
+        """
+        command = "sudo iptables -nL "+chain
+        return self.run_command_no_out(command)
 
     def check_forward_reference(self, target):
         """Checks if a target is referenced in the FORWARD chain of iptables.
@@ -124,7 +125,7 @@ class Firewall_Handler:
         commandX = "sudo iptables -X "+chain
         self.run_command_no_out(commandF)
         self.run_command_no_out(commandX)
-       
+
     def create_chain_destination_in_forward(self, chain, ip):
         """Creates a new chain in iptables that filters by destination IP address.
 
@@ -381,8 +382,8 @@ class Firewall_Handler:
         except ipaddress.AddressValueError:
             return False
 
-
     # services funcitions
+
     def reload_services_rules(self):
 
         # recupera todos os arquivos que foram alterados desde de a ultima execução do script
@@ -407,7 +408,8 @@ class Firewall_Handler:
                     # se tiver algum problema,  atualiza a data de modificação do arquivo para que ele seja carregado novamente
                     self.run_command_no_out(f'touch {file}')
                     continue
-                self.create_chain_destination_in_forward(chain_name, ip_service)
+                self.create_chain_destination_in_forward(
+                    chain_name, ip_service)
                 erros = self.aply_rules_from_file(file, chain_name)
                 if erros:
                     logging.debug(f'Erros encontrados no serviço:{chain_name}')
@@ -461,7 +463,20 @@ class Firewall_Handler:
         pass
 
     def list_modified_services(self):
-        pass
+        logging.debug('Serviços alterados:')
+        logging.info(self.get_changed_files(self.service_dir))
+        # logging.debug('Sub-redes alteradas:')
+        # logging.info(self.subnets_dir)
+
+        directories = [self.service_dir, self.subnets_dir]
+        files = []
+        all_files = []
+        for directory in directories:
+            files = self.get_changed_files(directory)
+            for file in files:
+                all_files.append(directory+file)
+
+        
 
     def create_new_service(self):
         pass
