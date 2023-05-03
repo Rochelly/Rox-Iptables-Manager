@@ -132,7 +132,7 @@ class Menu:
                                 status_are_line, 10, message, curses.color_pair(5))
             
                 else:
-                    msg = f"O tamanho maximo do terminal atigindo ({self.max_row} X {self.max_col})! - Amplie a janela para ver mais "
+                    msg = f"O tamanho máximo do terminal atingindo ({self.max_row} X {self.max_col})! - Amplie a janela para ver mais "
                   #  self.screen.addstr(10, 50,
                     #  msg, curses.color_pair(4))
             

@@ -3,7 +3,7 @@
         "install_path": "",
         "firewall-libs": "firewall-libs",
         "service_rules_path": "services-rules-files/",
-        "subnets_rules_path": "subnets_rules_files/",
+        "subnets_rules_path": "subnets-rules-files/",
         "log_file": "firewall_libs/firewall.log",
         "log_file_tmp": "firewall_libs/.tmp_firewall.log",
         "input_file_rules": "",

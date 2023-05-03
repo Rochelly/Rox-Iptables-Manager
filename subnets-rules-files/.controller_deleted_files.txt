@@ -1,0 +1,2 @@
+subnet02.fw=SUBNET02
+subnet01.fw=SUBNET01

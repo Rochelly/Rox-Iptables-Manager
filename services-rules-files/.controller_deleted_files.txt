@@ -1,2 +1,2 @@
+server02.fw=Server02
 server01.fw=Server01
-serve02.fw=Server02
